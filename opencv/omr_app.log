@@ -1128,3 +1128,35 @@ message: "API key not valid. Please pass a valid API key."
 2025-04-27 21:46:26,985 - omr_app - INFO - Generated Gemini analysis with 1851 characters
 2025-04-27 21:46:26,987 - omr_app - INFO - Gemini analysis completed successfully
 2025-04-27 21:46:26,987 - omr_app - INFO - Analysis completed successfully for e37b96b5-c470-4a56-8eab-ff26adbdf70c.jpg
+2025-04-27 22:24:25,384 - omr_app - INFO - Loaded webhook secret from config/webhook_secret.txt
+2025-04-27 22:24:25,385 - omr_app - INFO - Successfully initialized Gemini AI model
+2025-04-27 22:24:25,385 - omr_app - INFO - Webhook authentication enabled with generated secret
+2025-04-27 22:24:29,125 - omr_app - INFO - Loaded webhook secret from config/webhook_secret.txt
+2025-04-27 22:24:29,125 - omr_app - INFO - Successfully initialized Gemini AI model
+2025-04-27 22:24:29,126 - omr_app - INFO - Webhook authentication enabled with generated secret
+2025-04-27 22:24:29,332 - omr_app - INFO - Loaded webhook secret from config/webhook_secret.txt
+2025-04-27 22:24:29,333 - omr_app - INFO - Successfully initialized Gemini AI model
+2025-04-27 22:24:29,333 - omr_app - INFO - Webhook authentication enabled with generated secret
+2025-04-27 22:24:52,623 - omr_app - INFO - Generated Gemini analysis with 2531 characters
+2025-04-27 22:25:43,786 - omr_app - INFO - Starting detailed OMR analysis: file=dc1240ba-95fe-4980-8a98-5ad4f5a73b4f.jpg, answer_key=CACBCCCCCB, use_gemini=True
+2025-04-27 22:25:49,252 - omr_app - INFO - Generated Gemini analysis with 2348 characters
+2025-04-27 22:25:49,254 - omr_app - INFO - Gemini analysis completed successfully
+2025-04-27 22:25:49,255 - omr_app - INFO - Analysis completed successfully for dc1240ba-95fe-4980-8a98-5ad4f5a73b4f.jpg
+2025-04-27 22:30:43,473 - omr_app - INFO - Loaded webhook secret from config/webhook_secret.txt
+2025-04-27 22:30:43,474 - omr_app - INFO - Successfully initialized Gemini AI model
+2025-04-27 22:30:43,474 - omr_app - INFO - Webhook authentication enabled with generated secret
+2025-04-27 22:30:47,218 - omr_app - INFO - Loaded webhook secret from config/webhook_secret.txt
+2025-04-27 22:30:47,218 - omr_app - INFO - Successfully initialized Gemini AI model
+2025-04-27 22:30:47,219 - omr_app - INFO - Webhook authentication enabled with generated secret
+2025-04-27 22:30:47,405 - omr_app - INFO - Loaded webhook secret from config/webhook_secret.txt
+2025-04-27 22:30:47,406 - omr_app - INFO - Successfully initialized Gemini AI model
+2025-04-27 22:30:47,407 - omr_app - INFO - Webhook authentication enabled with generated secret
+2025-04-27 22:53:44,490 - omr_app - INFO - Loaded webhook secret from config/webhook_secret.txt
+2025-04-27 22:53:44,491 - omr_app - INFO - Successfully initialized Gemini AI model
+2025-04-27 22:53:44,491 - omr_app - INFO - Webhook authentication enabled with generated secret
+2025-04-27 22:53:48,085 - omr_app - INFO - Loaded webhook secret from config/webhook_secret.txt
+2025-04-27 22:53:48,086 - omr_app - INFO - Successfully initialized Gemini AI model
+2025-04-27 22:53:48,086 - omr_app - INFO - Webhook authentication enabled with generated secret
+2025-04-27 22:53:48,262 - omr_app - INFO - Loaded webhook secret from config/webhook_secret.txt
+2025-04-27 22:53:48,262 - omr_app - INFO - Successfully initialized Gemini AI model
+2025-04-27 22:53:48,263 - omr_app - INFO - Webhook authentication enabled with generated secret

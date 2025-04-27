@@ -1,0 +1,12 @@
+opencv-python
+numpy
+fastapi
+uvicorn
+aiofiles
+google-generativeai
+Pillow
+python-dotenv
+scikit-learn
+pydantic
+aiohttp
+joblib
