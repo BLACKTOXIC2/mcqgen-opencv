@@ -219,7 +219,7 @@ export default function TestCheckingPage() {
 
     try {
       // Connect to the actual OpenCV API
-      const apiBaseUrl = import.meta.env.VITE_OPENCV_API_URL || 'http://147.93.18.177:8000';
+      const apiBaseUrl = import.meta.env.VITE_OPENCV_API_URL || 'https://api.mcqgen.xyz';
       
       for (let i = 0; i < uploadedImages.length; i++) {
         // Update status to "processing"
@@ -510,7 +510,7 @@ Are you sure you want to save these results?`;
           // Extract image URLs from the API response or use empty array
           const imageUrls = [];
           if (result.rawOcrData && result.rawOcrData.result_image_url) {
-            const fullUrl = `${import.meta.env.VITE_OPENCV_API_URL || 'http://147.93.18.177:8000'}${result.rawOcrData.result_image_url}`;
+            const fullUrl = `${import.meta.env.VITE_OPENCV_API_URL || 'https://api.mcqgen.xyz'}${result.rawOcrData.result_image_url}`;
             imageUrls.push(fullUrl);
           }
           
@@ -728,7 +728,7 @@ Are you sure you want to save these results?`;
           <h3 className="text-blue-800 font-medium">ℹ️ Integration Information</h3>
           <p className="text-sm text-blue-700 mt-1">
             This application is now connected to the OpenCV OMR processing system. Images are sent directly 
-            to the OpenCV API running at {import.meta.env.VITE_OPENCV_API_URL || 'http://147.93.18.177:8000'}.
+            to the OpenCV API running at {import.meta.env.VITE_OPENCV_API_URL || 'https://api.mcqgen.xyz'}.
             Make sure the OpenCV server is running before scanning answer sheets.
           </p>
           <p className="text-sm text-blue-700 mt-2">
