@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenCV API Connection Test</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .status {
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 5px;
+    }
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    .warning {
+      background-color: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeeba;
+    }
+    .info {
+      background-color: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    pre {
+      background-color: #f8f9fa;
+      padding: 10px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    button:hover {
+      background-color: #0069d9;
+    }
+    input[type="file"] {
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>OpenCV API Connection Test</h1>
+  
+  <div class="status info" id="apiUrl">
+    Checking API URL...
+  </div>
+  
+  <div class="info">
+    <p><strong>Test 1:</strong> Check API Status</p>
+    <button id="testStatus">Test API Status</button>
+    <div id="statusResult"></div>
+  </div>
+  
+  <div class="info" style="margin-top: 20px;">
+    <p><strong>Test 2:</strong> Test OMR Processing</p>
+    <input type="file" id="omrImage" accept="image/*">
+    <button id="testProcessing">Test OMR Processing</button>
+    <div id="processingResult"></div>
+  </div>
+  
+  <script>
+    // Get API URL from environment variable or use default
+    const apiBaseUrl = localStorage.getItem('OPENCV_API_URL') || 'http://localhost:8000';
+    document.getElementById('apiUrl').textContent = `Using API URL: ${apiBaseUrl}`;
+    
+    // Test 1: Check API status
+    document.getElementById('testStatus').addEventListener('click', async () => {
+      const statusResult = document.getElementById('statusResult');
+      statusResult.innerHTML = '<div class="status warning">Testing connection...</div>';
+      
+      try {
+        const response = await fetch(`${apiBaseUrl}/api/status`);
+        if (response.ok) {
+          const data = await response.json();
+          statusResult.innerHTML = `
+            <div class="status success">Connection successful!</div>
+            <pre>${JSON.stringify(data, null, 2)}</pre>
+          `;
+        } else {
+          statusResult.innerHTML = `
+            <div class="status error">Connection failed! Status: ${response.status}</div>
+            <p>Make sure the OpenCV server is running at ${apiBaseUrl}</p>
+          `;
+        }
+      } catch (error) {
+        statusResult.innerHTML = `
+          <div class="status error">Connection error: ${error.message}</div>
+          <p>Make sure the OpenCV server is running at ${apiBaseUrl}</p>
+        `;
+      }
+    });
+    
+    // Test 2: Test OMR processing
+    document.getElementById('testProcessing').addEventListener('click', async () => {
+      const processingResult = document.getElementById('processingResult');
+      const fileInput = document.getElementById('omrImage');
+      
+      if (!fileInput.files || !fileInput.files[0]) {
+        processingResult.innerHTML = '<div class="status warning">Please select an image first</div>';
+        return;
+      }
+      
+      processingResult.innerHTML = '<div class="status warning">Uploading and processing image...</div>';
+      
+      try {
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        formData.append('answer_key', 'ABCD'); // Test answer key
+        
+        const response = await fetch(`${apiBaseUrl}/api/analyze-omr`, {
+          method: 'POST',
+          body: formData
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          processingResult.innerHTML = `
+            <div class="status success">Processing successful!</div>
+            <div>
+              <h3>Results:</h3>
+              ${data.result_image ? `<img src="${apiBaseUrl}${data.result_image_url}" style="max-width: 100%;" />` : ''}
+              <pre>${JSON.stringify(data, null, 2)}</pre>
+            </div>
+          `;
+        } else {
+          const text = await response.text();
+          processingResult.innerHTML = `
+            <div class="status error">Processing failed! Status: ${response.status}</div>
+            <pre>${text}</pre>
+          `;
+        }
+      } catch (error) {
+        processingResult.innerHTML = `
+          <div class="status error">Processing error: ${error.message}</div>
+        `;
+      }
+    });
+    
+    // Initialize: Check if API is available on load
+    window.addEventListener('load', () => {
+      document.getElementById('testStatus').click();
+    });
+  </script>
+</body>
+</html> 
