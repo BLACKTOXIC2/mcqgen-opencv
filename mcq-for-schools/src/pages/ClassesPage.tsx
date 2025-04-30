@@ -129,7 +129,7 @@ export default function ClassesPage() {
               leftIcon={<Plus size={16} />}
               onClick={() => setIsAdding(true)}
               size="md"
-              className="transition-all hover:scale-105"
+              className="transition-all hover:scale-105 bg-purple-600 hover:bg-purple-700 text-white"
             >
               Add Class
             </Button>
@@ -145,9 +145,9 @@ export default function ClassesPage() {
             exit={{ opacity: 0, y: -20 }}
             className="mb-8"
           >
-            <Card className="border-2 border-primary-100">
-              <CardHeader className="bg-primary-50">
-                <h3 className="text-xl font-semibold text-primary-700">
+            <Card className="border-2 border-purple-100">
+              <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50">
+                <h3 className="text-xl font-semibold text-purple-700">
                   {isEditing ? 'Edit Class Details' : 'Add New Class'}
                 </h3>
               </CardHeader>
@@ -161,7 +161,7 @@ export default function ClassesPage() {
                         onChange={(e) => setName(e.target.value)}
                         placeholder="e.g. Mathematics"
                         required
-                        icon={<BookOpen size={18} className="text-gray-500" />}
+                        icon={<BookOpen size={18} className="text-purple-500" />}
                       />
                       <p className="text-xs text-gray-500 pl-1">The subject name for this class</p>
                     </div>
@@ -172,7 +172,7 @@ export default function ClassesPage() {
                         onChange={(e) => setSection(e.target.value)}
                         placeholder="e.g. A"
                         required
-                        icon={<School size={18} className="text-gray-500" />}
+                        icon={<School size={18} className="text-purple-500" />}
                       />
                       <p className="text-xs text-gray-500 pl-1">The section identifier</p>
                     </div>
@@ -183,7 +183,7 @@ export default function ClassesPage() {
                         onChange={(e) => setGrade(e.target.value)}
                         placeholder="e.g. 10"
                         required
-                        icon={<GraduationCap size={18} className="text-gray-500" />}
+                        icon={<GraduationCap size={18} className="text-purple-500" />}
                       />
                       <p className="text-xs text-gray-500 pl-1">The grade or year level</p>
                     </div>
@@ -193,12 +193,14 @@ export default function ClassesPage() {
                       type="button" 
                       variant="outline" 
                       onClick={resetForm}
+                      className="border-purple-200 text-purple-700 hover:bg-purple-50"
                     >
                       Cancel
                     </Button>
                     <Button 
                       type="submit"
                       rightIcon={isEditing ? <Pencil size={16} /> : <Plus size={16} />}
+                      className="bg-purple-600 hover:bg-purple-700 text-white"
                     >
                       {isEditing ? 'Update Class' : 'Create Class'}
                     </Button>
@@ -212,8 +214,8 @@ export default function ClassesPage() {
       
       {loading ? (
         <div className="flex flex-col justify-center items-center h-64 space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
-          <p className="text-primary-600 font-medium">Loading your classes...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
+          <p className="text-purple-700 font-medium">Loading your classes...</p>
         </div>
       ) : (
         <AnimatePresence>
@@ -225,18 +227,18 @@ export default function ClassesPage() {
             {classes.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-purple-50">
                     <tr>
-                      <th scope="col" className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-6 py-4 text-left text-xs font-medium text-purple-600 uppercase tracking-wider">
                         Class Name
                       </th>
-                      <th scope="col" className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-6 py-4 text-left text-xs font-medium text-purple-600 uppercase tracking-wider">
                         Section
                       </th>
-                      <th scope="col" className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-6 py-4 text-left text-xs font-medium text-purple-600 uppercase tracking-wider">
                         Grade
                       </th>
-                      <th scope="col" className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-6 py-4 text-right text-xs font-medium text-purple-600 uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
@@ -251,23 +253,23 @@ export default function ClassesPage() {
                           y: 0,
                           transition: { delay: index * 0.05 }
                         }}
-                        className="hover:bg-gray-50 transition-colors"
+                        className="hover:bg-purple-50 transition-colors"
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <BookOpen size={18} className="text-primary-500 mr-2" />
+                            <BookOpen size={18} className="text-purple-500 mr-2" />
                             <div className="text-sm font-medium text-gray-900">{classItem.name}</div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <School size={18} className="text-gray-400 mr-2" />
+                            <School size={18} className="text-purple-400 mr-2" />
                             <div className="text-sm text-gray-700">{classItem.section}</div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <GraduationCap size={18} className="text-gray-400 mr-2" />
+                            <GraduationCap size={18} className="text-purple-400 mr-2" />
                             <div className="text-sm text-gray-700">Grade {classItem.grade}</div>
                           </div>
                         </td>
@@ -277,7 +279,7 @@ export default function ClassesPage() {
                             size="sm"
                             leftIcon={<Pencil size={16} />}
                             onClick={() => handleEdit(classItem)}
-                            className="mr-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                            className="mr-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50"
                           >
                             Edit
                           </Button>
@@ -298,8 +300,8 @@ export default function ClassesPage() {
               </div>
             ) : (
               <div className="py-12 px-6 text-center">
-                <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                  <BookOpen size={32} className="text-gray-400" />
+                <div className="mx-auto w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+                  <BookOpen size={32} className="text-purple-500" />
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No classes added yet</h3>
                 <p className="text-gray-500 mb-6 max-w-md mx-auto">Create your first class to start organizing your teaching materials and assignments</p>
@@ -308,7 +310,7 @@ export default function ClassesPage() {
                     leftIcon={<Plus size={16} />}
                     onClick={() => setIsAdding(true)}
                     size="lg"
-                    className="transition-all hover:scale-105"
+                    className="transition-all hover:scale-105 bg-purple-600 hover:bg-purple-700 text-white"
                   >
                     Add Your First Class
                   </Button>

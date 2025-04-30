@@ -15,6 +15,7 @@ type NavItem = {
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const location = useLocation();
   const { signOut, user } = useAuth();
 
@@ -101,7 +102,7 @@ export default function Sidebar() {
       <div className="fixed left-4 top-4 z-50 lg:hidden">
         <button
           onClick={toggleSidebar}
-          className="p-2.5 rounded-full bg-white shadow-lg hover:bg-primary-50 text-primary-600"
+          className="p-2.5 rounded-full bg-white shadow-lg hover:bg-purple-50 text-purple-600 transition-all duration-300 ease-in-out transform hover:scale-105"
           aria-label="Toggle menu"
         >
           {isOpen ? <X size={22} /> : <Menu size={22} />}
@@ -109,19 +110,19 @@ export default function Sidebar() {
       </div>
 
       {/* Sidebar for large screens */}
-      <div className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:border-r lg:border-gray-200 lg:bg-white lg:pt-5 lg:shadow-sm overflow-y-auto">
+      <div className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:border-r lg:border-gray-200 lg:bg-white lg:pt-5 lg:shadow-sm overflow-y-auto bg-gradient-to-b from-white to-purple-50 transition-all duration-300">
         <div className="flex items-center justify-center h-14 px-4 mb-6">
-          <div className="flex items-center space-x-2 text-xl font-bold text-primary-600">
-            <Layers size={24} className="text-primary-600" />
-            <span>MCQGen</span>
+          <div className="flex items-center space-x-2 text-xl font-bold text-purple-700">
+            <Layers size={24} className="text-purple-600" />
+            <span className="bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">MCQGen</span>
           </div>
         </div>
 
         <div className="flex flex-col flex-grow px-3">
           {/* User section */}
-          <div className="mb-6 p-3 bg-primary-50 rounded-lg">
+          <div className="mb-6 p-3 bg-purple-100 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md">
             <div className="flex items-center space-x-3">
-              <div className="flex-shrink-0 w-9 h-9 bg-primary-500 text-white rounded-full flex items-center justify-center font-medium text-sm">
+              <div className="flex-shrink-0 w-9 h-9 bg-purple-600 text-white rounded-full flex items-center justify-center font-medium text-sm shadow-sm">
                 {userInitials}
               </div>
               <div className="flex-1 min-w-0">
@@ -134,7 +135,7 @@ export default function Sidebar() {
               </div>
               <Link 
                 to="/profile" 
-                className="p-1.5 rounded-md hover:bg-primary-100 text-primary-800 transition-colors"
+                className="p-1.5 rounded-md hover:bg-purple-200 text-purple-700 transition-all duration-300 transform hover:scale-110"
                 aria-label="Edit profile"
               >
                 <Settings size={16} />
@@ -143,30 +144,34 @@ export default function Sidebar() {
           </div>
 
           {/* Navigation */}
-          <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 mb-2">
+          <div className="text-xs font-semibold text-purple-400 uppercase tracking-wider px-3 mb-2">
             MAIN NAVIGATION
           </div>
           <nav className="space-y-1 mb-6">
             {navItems.map((item) => {
               const isItemActive = isActive(item.path);
+              const isHovered = hoveredItem === item.path;
               return (
                 <Link
                   key={item.name}
                   to={item.path}
+                  onMouseEnter={() => setHoveredItem(item.path)}
+                  onMouseLeave={() => setHoveredItem(null)}
                   className={`
-                    flex items-center px-3 py-2 rounded-md transition-colors
+                    flex items-center px-3 py-2.5 rounded-md transition-all duration-300
                     ${isItemActive
-                      ? 'bg-primary-100 text-primary-800 font-medium'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                      ? 'bg-purple-100 text-purple-800 font-medium shadow-sm'
+                      : 'text-gray-600 hover:bg-purple-50 hover:text-purple-700'
                     }
+                    ${isHovered && !isItemActive ? 'transform translate-x-1' : ''}
                   `}
                 >
-                  <span className={`mr-3 ${isItemActive ? 'text-primary-600' : ''}`}>
+                  <span className={`mr-3 transition-colors duration-300 ${isItemActive ? 'text-purple-600' : isHovered ? 'text-purple-500' : ''}`}>
                     {item.icon}
                   </span>
                   <span>{item.name}</span>
                   {isItemActive && (
-                    <ChevronRight size={16} className="ml-auto text-primary-600" />
+                    <ChevronRight size={16} className="ml-auto text-purple-600" />
                   )}
                 </Link>
               );
@@ -174,15 +179,15 @@ export default function Sidebar() {
           </nav>
 
           <div className="mt-auto mb-4">
-            <div className="px-3 py-2 text-xs text-gray-500">
+            <div className="px-3 py-2 text-xs text-purple-500 font-medium">
               Logged in as a teacher
             </div>
             <button 
               onClick={signOut}
-              className="flex items-center w-full px-3 py-2 mt-1 rounded-md text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
+              className="flex items-center w-full px-3 py-2.5 mt-1 rounded-md text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-300 hover:shadow-sm group"
             >
-              <LogOut size={18} className="mr-3" />
-              Logout
+              <LogOut size={18} className="mr-3 group-hover:rotate-12 transition-transform duration-300" />
+              <span className="group-hover:font-medium">Logout</span>
             </button>
           </div>
         </div>
@@ -190,29 +195,29 @@ export default function Sidebar() {
 
       {/* Mobile sidebar */}
       {isOpen && (
-        <div className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden">
+        <div className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden backdrop-blur-sm transition-all duration-300">
           <div 
             id="mobile-sidebar"
-            className="fixed inset-y-0 left-0 flex flex-col w-64 max-w-xs bg-white shadow-xl"
+            className="fixed inset-y-0 left-0 flex flex-col w-64 max-w-xs bg-white shadow-xl transform transition-transform duration-300 ease-in-out"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between h-14 px-4 border-b bg-primary-50">
+            <div className="flex items-center justify-between h-14 px-4 border-b bg-purple-100">
               <div className="flex items-center space-x-2">
-                <Layers size={22} className="text-primary-600" />
-                <h1 className="text-lg font-bold text-primary-700">MCQGen</h1>
+                <Layers size={22} className="text-purple-600" />
+                <h1 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">MCQGen</h1>
               </div>
               <button 
                 onClick={toggleSidebar} 
-                className="p-1.5 rounded-full hover:bg-white text-gray-500 hover:text-gray-700 transition-colors"
+                className="p-1.5 rounded-full hover:bg-white text-purple-600 hover:text-purple-800 transition-all duration-300 hover:rotate-90"
               >
                 <X size={18} />
               </button>
             </div>
 
             {/* User section - mobile */}
-            <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
+            <div className="px-4 py-3 border-b border-gray-200 bg-purple-50">
               <div className="flex items-center space-x-3">
-                <div className="flex-shrink-0 w-8 h-8 bg-primary-500 text-white rounded-full flex items-center justify-center font-medium text-sm">
+                <div className="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-medium text-sm shadow-sm">
                   {userInitials}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -226,37 +231,40 @@ export default function Sidebar() {
               </div>
             </div>
 
-            <div className="flex flex-col flex-grow overflow-y-auto">
+            <div className="flex flex-col flex-grow overflow-y-auto bg-gradient-to-b from-white to-purple-50">
               <nav className="flex-1 px-2 py-3 space-y-1">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.path}
-                    className={`
-                      flex items-center px-3 py-2 rounded-md transition-colors
-                      ${isActive(item.path)
-                        ? 'bg-primary-100 text-primary-700 font-medium'
-                        : 'text-gray-600 hover:bg-gray-100'
-                      }
-                    `}
-                  >
-                    <span className={`mr-3 ${isActive(item.path) ? 'text-primary-600' : ''}`}>
-                      {item.icon}
-                    </span>
-                    {item.name}
-                    {isActive(item.path) && (
-                      <ChevronRight size={16} className="ml-auto text-primary-600" />
-                    )}
-                  </Link>
-                ))}
+                {navItems.map((item) => {
+                  const isItemActive = isActive(item.path);
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.path}
+                      className={`
+                        flex items-center px-3 py-2.5 rounded-md transition-all duration-300
+                        ${isItemActive
+                          ? 'bg-purple-100 text-purple-700 font-medium shadow-sm'
+                          : 'text-gray-600 hover:bg-purple-50 hover:translate-x-1'
+                        }
+                      `}
+                    >
+                      <span className={`mr-3 ${isItemActive ? 'text-purple-600' : ''}`}>
+                        {item.icon}
+                      </span>
+                      {item.name}
+                      {isItemActive && (
+                        <ChevronRight size={16} className="ml-auto text-purple-600" />
+                      )}
+                    </Link>
+                  );
+                })}
               </nav>
 
               <div className="px-4 py-3 mt-auto border-t">
                 <button 
                   onClick={signOut}
-                  className="flex items-center w-full px-3 py-2 rounded-md font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
+                  className="flex items-center w-full px-3 py-2.5 rounded-md font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-300 group"
                 >
-                  <LogOut size={18} className="mr-3" />
+                  <LogOut size={18} className="mr-3 group-hover:rotate-12 transition-transform duration-300" />
                   Logout
                 </button>
               </div>

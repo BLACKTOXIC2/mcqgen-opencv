@@ -236,15 +236,15 @@ export default function McqCreatePage() {
         size="sm"
         leftIcon={<ArrowLeft size={16} />}
         onClick={() => navigate('/mcqs')}
-        className="mb-6"
+        className="mb-6 border-purple-200 text-purple-700 hover:bg-purple-50"
       >
         Back to MCQs
       </Button>
       
       <form onSubmit={handleSubmit}>
-        <Card className="mb-6">
-          <CardHeader>
-            <h3 className="text-lg font-medium">MCQ Details</h3>
+        <Card className="mb-6 border border-purple-200">
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50">
+            <h3 className="text-lg font-medium text-purple-700">MCQ Details</h3>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -279,12 +279,12 @@ export default function McqCreatePage() {
         </Card>
         
         {/* AI Generation Card */}
-        <Card className="mb-6 border-2 border-primary-100">
+        <Card className="mb-6 border-2 border-purple-200 bg-gradient-to-br from-white to-purple-50">
           <CardContent className="py-4">
             <div className="flex flex-col space-y-4">
               <div className="flex items-center">
-                <Sparkles size={18} className="text-primary-500 mr-2" />
-                <h3 className="text-lg font-medium text-primary-700">AI Question Generator</h3>
+                <Sparkles size={18} className="text-purple-500 mr-2" />
+                <h3 className="text-lg font-medium text-purple-700">AI Question Generator</h3>
               </div>
               
               <p className="text-sm text-gray-600">
@@ -296,7 +296,7 @@ export default function McqCreatePage() {
                 leftIcon={isGenerating ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
                 onClick={handleGenerateQuestions}
                 disabled={isGenerating || !title || !classId}
-                className="w-full"
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white"
               >
                 {isGenerating ? 'Generating Questions...' : 'Generate Questions with AI'}
               </Button>
@@ -307,7 +307,7 @@ export default function McqCreatePage() {
                 </div>
               )}
               
-              <div className="text-xs text-gray-500 bg-yellow-50 p-2 rounded-md border border-yellow-200">
+              <div className="text-xs text-gray-500 bg-purple-50 p-2 rounded-md border border-purple-200">
                 <span className="font-medium">Note:</span> Generating questions will replace any existing questions. Make sure to enter a title and select a class first.
               </div>
             </div>
@@ -324,9 +324,9 @@ export default function McqCreatePage() {
               transition={{ duration: 0.3 }}
               className="mb-6"
             >
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <h3 className="text-lg font-medium">
+              <Card className="border border-purple-200">
+                <CardHeader className="flex flex-row items-center justify-between bg-gradient-to-r from-purple-50 to-indigo-50">
+                  <h3 className="text-lg font-medium text-purple-700">
                     Question {index + 1}
                   </h3>
                   {questions.length > 1 && (
@@ -335,6 +335,7 @@ export default function McqCreatePage() {
                       size="sm"
                       leftIcon={<Trash2 size={16} />}
                       onClick={() => handleRemoveQuestion(question.id)}
+                      className="text-red-600 hover:bg-red-50"
                     >
                       Remove
                     </Button>
@@ -362,7 +363,7 @@ export default function McqCreatePage() {
                             name={`question-${question.id}-correct`}
                             checked={question.correct_option === optIndex}
                             onChange={() => handleCorrectOptionChange(question.id, optIndex)}
-                            className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
+                            className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300"
                             key={`radio-${question.id}-${optIndex}-${question.correct_option === optIndex}`}
                           />
                         </div>
@@ -402,18 +403,19 @@ export default function McqCreatePage() {
             variant="outline"
             leftIcon={<Plus size={16} />}
             onClick={handleAddQuestion}
-            className="mb-6"
+            className="mb-6 border-purple-200 text-purple-700 hover:bg-purple-50"
           >
             Add Question
           </Button>
         </motion.div>
         
-        <Card>
-          <CardFooter className="flex justify-between">
+        <Card className="border border-purple-200">
+          <CardFooter className="flex justify-between bg-gradient-to-r from-purple-50 to-indigo-50">
             <Button
               type="button"
               variant="outline"
               onClick={() => navigate('/mcqs')}
+              className="border-purple-200 text-purple-700 hover:bg-purple-50"
             >
               Cancel
             </Button>
@@ -421,6 +423,7 @@ export default function McqCreatePage() {
               type="submit"
               leftIcon={<Save size={16} />}
               isLoading={isSaving}
+              className="bg-purple-600 hover:bg-purple-700 text-white"
             >
               Save MCQ
             </Button>

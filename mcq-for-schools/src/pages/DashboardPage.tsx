@@ -122,8 +122,8 @@ export default function DashboardPage() {
     <Layout title="Dashboard">
       {loading ? (
         <div className="flex flex-col justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
-          <p className="mt-4 text-primary-600 font-medium">Loading your dashboard...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
+          <p className="mt-4 text-purple-700 font-medium">Loading your dashboard...</p>
         </div>
       ) : (
         <>
@@ -134,11 +134,11 @@ export default function DashboardPage() {
             transition={{ duration: 0.5 }}
             className="mb-8"
           >
-            <div className="flex flex-col md:flex-row md:items-center justify-between bg-gradient-to-r from-primary-50 to-blue-50 rounded-xl p-6 border border-primary-100">
+            <div className="flex flex-col md:flex-row md:items-center justify-between bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 border border-purple-100 shadow-sm hover:shadow-md transition-all duration-300">
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{getGreeting()}, {userName || 'Teacher'}</h1>
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">{getGreeting()}, {userName || 'Teacher'}</h1>
                 <div className="flex items-center mt-2 text-gray-600">
-                  <Calendar size={16} className="mr-2" />
+                  <Calendar size={16} className="mr-2 text-purple-400" />
                   <span>{formatDate()}</span>
                 </div>
                 
@@ -148,8 +148,8 @@ export default function DashboardPage() {
               </div>
               
               <div className="mt-4 md:mt-0 flex flex-col items-start md:items-end">
-                <div className="flex items-center bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200">
-                  <Bell size={18} className="text-amber-500 mr-2" />
+                <div className="flex items-center bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 transform hover:scale-105 transition-transform duration-300">
+                  <Bell size={18} className="text-purple-500 mr-2" />
                   <span className="text-sm font-medium">
                     {recentMcqs.length > 0 ? `${recentMcqs.length} recent MCQs` : 'No recent activity'}
                   </span>
@@ -158,7 +158,7 @@ export default function DashboardPage() {
                   <Link to="/mcqs/create">
                     <Button 
                       size="sm" 
-                      className="shadow-sm hover:shadow-md transition-all"
+                      className="shadow-sm hover:shadow-md transition-all bg-purple-600 hover:bg-purple-700 text-white"
                       rightIcon={<Plus size={16} />}
                     >
                       Create New MCQ
@@ -176,15 +176,15 @@ export default function DashboardPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.1 }}
             >
-              <Card className="h-full border-blue-200 hover:shadow-md transition-all">
+              <Card className="h-full border-purple-200 hover:shadow-md transition-all hover:border-purple-300 group">
                 <CardContent className="p-0">
                   <div className="p-5 pb-3">
                     <div className="flex justify-between items-start">
-                      <div className="p-3 rounded-lg bg-blue-100">
-                        <BookOpen className="h-6 w-6 text-blue-600" />
+                      <div className="p-3 rounded-lg bg-purple-100 group-hover:bg-purple-200 transition-colors">
+                        <BookOpen className="h-6 w-6 text-purple-600" />
                       </div>
-                      <div className="p-1.5 rounded-full bg-blue-50">
-                        <div className={`h-2 w-2 rounded-full ${stats.classCount > 0 ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
+                      <div className="p-1.5 rounded-full bg-purple-50">
+                        <div className={`h-2 w-2 rounded-full ${stats.classCount > 0 ? 'bg-purple-500' : 'bg-gray-300'}`}></div>
                       </div>
                     </div>
                     <div className="mt-4">
@@ -196,10 +196,10 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   
-                  <div className="border-t border-gray-100 p-4 bg-gray-50 rounded-b-lg">
-                    <Link to="/classes" className="flex items-center justify-between text-sm text-blue-600 font-medium">
+                  <div className="border-t border-gray-100 p-4 bg-gray-50 rounded-b-lg group-hover:bg-purple-50 transition-colors">
+                    <Link to="/classes" className="flex items-center justify-between text-sm text-purple-600 font-medium">
                       <span>Manage Classes</span>
-                      <ChevronRight size={16} />
+                      <ChevronRight size={16} className="transform group-hover:translate-x-1 transition-transform" />
                     </Link>
                   </div>
                 </CardContent>
@@ -211,15 +211,15 @@ export default function DashboardPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.2 }}
             >
-              <Card className="h-full border-green-200 hover:shadow-md transition-all">
+              <Card className="h-full border-indigo-200 hover:shadow-md transition-all hover:border-indigo-300 group">
                 <CardContent className="p-0">
                   <div className="p-5 pb-3">
                     <div className="flex justify-between items-start">
-                      <div className="p-3 rounded-lg bg-green-100">
-                        <Users className="h-6 w-6 text-green-600" />
+                      <div className="p-3 rounded-lg bg-indigo-100 group-hover:bg-indigo-200 transition-colors">
+                        <Users className="h-6 w-6 text-indigo-600" />
                       </div>
-                      <div className="p-1.5 rounded-full bg-green-50">
-                        <div className={`h-2 w-2 rounded-full ${stats.studentCount > 0 ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                      <div className="p-1.5 rounded-full bg-indigo-50">
+                        <div className={`h-2 w-2 rounded-full ${stats.studentCount > 0 ? 'bg-indigo-500' : 'bg-gray-300'}`}></div>
                       </div>
                     </div>
                     <div className="mt-4">
@@ -231,10 +231,10 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   
-                  <div className="border-t border-gray-100 p-4 bg-gray-50 rounded-b-lg">
-                    <Link to="/students" className="flex items-center justify-between text-sm text-green-600 font-medium">
+                  <div className="border-t border-gray-100 p-4 bg-gray-50 rounded-b-lg group-hover:bg-indigo-50 transition-colors">
+                    <Link to="/students" className="flex items-center justify-between text-sm text-indigo-600 font-medium">
                       <span>Manage Students</span>
-                      <ChevronRight size={16} />
+                      <ChevronRight size={16} className="transform group-hover:translate-x-1 transition-transform" />
                     </Link>
                   </div>
                 </CardContent>
@@ -246,15 +246,15 @@ export default function DashboardPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.3 }}
             >
-              <Card className="h-full border-purple-200 hover:shadow-md transition-all">
+              <Card className="h-full border-violet-200 hover:shadow-md transition-all hover:border-violet-300 group">
                 <CardContent className="p-0">
                   <div className="p-5 pb-3">
                     <div className="flex justify-between items-start">
-                      <div className="p-3 rounded-lg bg-purple-100">
-                        <FileQuestion className="h-6 w-6 text-purple-600" />
+                      <div className="p-3 rounded-lg bg-violet-100 group-hover:bg-violet-200 transition-colors">
+                        <FileQuestion className="h-6 w-6 text-violet-600" />
                       </div>
-                      <div className="p-1.5 rounded-full bg-purple-50">
-                        <div className={`h-2 w-2 rounded-full ${stats.mcqCount > 0 ? 'bg-purple-500' : 'bg-gray-300'}`}></div>
+                      <div className="p-1.5 rounded-full bg-violet-50">
+                        <div className={`h-2 w-2 rounded-full ${stats.mcqCount > 0 ? 'bg-violet-500' : 'bg-gray-300'}`}></div>
                       </div>
                     </div>
                     <div className="mt-4">
@@ -266,10 +266,10 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   
-                  <div className="border-t border-gray-100 p-4 bg-gray-50 rounded-b-lg">
-                    <Link to="/mcqs" className="flex items-center justify-between text-sm text-purple-600 font-medium">
+                  <div className="border-t border-gray-100 p-4 bg-gray-50 rounded-b-lg group-hover:bg-violet-50 transition-colors">
+                    <Link to="/mcqs" className="flex items-center justify-between text-sm text-violet-600 font-medium">
                       <span>View All MCQs</span>
-                      <ChevronRight size={16} />
+                      <ChevronRight size={16} className="transform group-hover:translate-x-1 transition-transform" />
                     </Link>
                   </div>
                 </CardContent>
@@ -284,15 +284,20 @@ export default function DashboardPage() {
             transition={{ duration: 0.3, delay: 0.4 }}
             className="mb-8"
           >
-            <Card className="border-gray-200 overflow-hidden">
-              <CardHeader className="bg-gray-50 border-b border-gray-200">
+            <Card className="border-purple-200 overflow-hidden hover:shadow-md transition-all">
+              <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-purple-100">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <FileQuestion className="h-5 w-5 text-primary-500 mr-2" />
+                    <FileQuestion className="h-5 w-5 text-purple-600 mr-2" />
                     <h2 className="text-lg font-medium text-gray-900">Recent MCQs</h2>
                   </div>
                   <Link to="/mcqs">
-                    <Button variant="outline" size="sm" rightIcon={<ArrowRight size={16} />}>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      rightIcon={<ArrowRight size={16} />}
+                      className="border-purple-300 text-purple-700 hover:bg-purple-50"
+                    >
                       View all
                     </Button>
                   </Link>
@@ -301,21 +306,21 @@ export default function DashboardPage() {
               <div className="overflow-x-auto">
                 {recentMcqs.length > 0 ? (
                   <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-purple-50">
                       <tr>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-purple-600 uppercase tracking-wider">
                           Title
                         </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-purple-600 uppercase tracking-wider">
                           Questions
                         </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-purple-600 uppercase tracking-wider">
                           Class
                         </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-purple-600 uppercase tracking-wider">
                           Created
                         </th>
-                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-purple-600 uppercase tracking-wider">
                           Action
                         </th>
                       </tr>
@@ -324,7 +329,7 @@ export default function DashboardPage() {
                       {recentMcqs.map((mcq, index) => (
                         <motion.tr 
                           key={mcq.id} 
-                          className="hover:bg-gray-50"
+                          className="hover:bg-purple-50 transition-colors"
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.1 * index }}
@@ -333,7 +338,7 @@ export default function DashboardPage() {
                             <div className="text-sm font-medium text-gray-900">{mcq.title}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="bg-primary-50 text-primary-700 text-xs font-medium px-2.5 py-1 rounded-full inline-flex items-center">
+                            <div className="bg-purple-100 text-purple-700 text-xs font-medium px-2.5 py-1 rounded-full inline-flex items-center">
                               <span>{mcq.questions.length}</span>
                             </div>
                           </td>
@@ -341,7 +346,7 @@ export default function DashboardPage() {
                             <div className="text-sm text-gray-500">
                               {(mcq as any).classes ? 
                                 <span className="inline-flex items-center">
-                                  <BookOpen size={14} className="mr-1 text-blue-500" />
+                                  <BookOpen size={14} className="mr-1 text-indigo-500" />
                                   {(mcq as any).classes.name} - Section {(mcq as any).classes.section}
                                 </span> : 
                                 'Unknown class'}
@@ -349,13 +354,18 @@ export default function DashboardPage() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             <span className="flex items-center">
-                              <Calendar size={14} className="mr-1 text-gray-400" />
+                              <Calendar size={14} className="mr-1 text-purple-400" />
                               {new Date(mcq.created_at).toLocaleDateString()}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                             <Link to={`/mcqs/${mcq.id}`}>
-                              <Button variant="ghost" size="sm" rightIcon={<ChevronRight size={14} />}>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                rightIcon={<ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />}
+                                className="text-purple-600 hover:bg-purple-50 hover:text-purple-700 group"
+                              >
                                 View
                               </Button>
                             </Link>
@@ -365,8 +375,8 @@ export default function DashboardPage() {
                     </tbody>
                   </table>
                 ) : (
-                  <div className="py-12 px-6 text-center bg-gray-50">
-                    <div className="mx-auto w-16 h-16 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center mb-4">
+                  <div className="py-12 px-6 text-center bg-purple-50">
+                    <div className="mx-auto w-16 h-16 bg-purple-100 text-purple-500 rounded-full flex items-center justify-center mb-4">
                       <FileQuestion size={24} />
                     </div>
                     <h3 className="text-lg font-medium text-gray-900 mb-2">No MCQs created yet</h3>
@@ -374,7 +384,11 @@ export default function DashboardPage() {
                       Start creating MCQs for your students to test their knowledge and track their progress.
                     </p>
                     <Link to="/mcqs/create">
-                      <Button rightIcon={<Plus size={16} />} size="lg" className="shadow-sm hover:shadow transition-shadow">
+                      <Button 
+                        rightIcon={<Plus size={16} />} 
+                        size="lg" 
+                        className="shadow-sm hover:shadow transition-shadow bg-purple-600 hover:bg-purple-700 text-white"
+                      >
                         Create Your First MCQ
                       </Button>
                     </Link>
@@ -382,12 +396,16 @@ export default function DashboardPage() {
                 )}
               </div>
               {recentMcqs.length > 0 && (
-                <CardFooter className="bg-gray-50 border-t border-gray-200 flex justify-between items-center">
-                  <div className="text-xs text-gray-500">
+                <CardFooter className="bg-gradient-to-r from-purple-50 to-indigo-50 border-t border-purple-100 flex justify-between items-center">
+                  <div className="text-xs text-purple-600">
                     Showing {recentMcqs.length} of {stats.mcqCount} MCQs
                   </div>
                   <Link to="/mcqs/create">
-                    <Button size="sm" rightIcon={<Plus size={16} />}>
+                    <Button 
+                      size="sm" 
+                      rightIcon={<Plus size={16} />}
+                      className="bg-purple-600 hover:bg-purple-700 text-white"
+                    >
                       Create New
                     </Button>
                   </Link>
@@ -404,22 +422,22 @@ export default function DashboardPage() {
             className="mb-8"
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-medium text-gray-900">Quick Actions</h2>
+              <h2 className="text-lg font-medium bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">Quick Actions</h2>
               <span className="text-sm text-gray-500">Get started with these common tasks</span>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Link to="/classes/create" className="block">
-                <Card className="hover:shadow-md transition-shadow border-blue-200 hover:border-blue-300 h-full">
+                <Card className="hover:shadow-md transition-all border-purple-200 hover:border-purple-300 h-full group">
                   <CardContent className="flex flex-col p-5">
-                    <div className="p-3 rounded-full bg-blue-100 self-start mb-3">
-                      <BookOpen className="h-5 w-5 text-blue-600" />
+                    <div className="p-3 rounded-full bg-purple-100 self-start mb-3 group-hover:bg-purple-200 transition-colors">
+                      <BookOpen className="h-5 w-5 text-purple-600" />
                     </div>
                     <h3 className="font-medium mb-1">Create Class</h3>
                     <p className="text-sm text-gray-500 mb-3">Add a new class with section details</p>
                     <div className="mt-auto">
-                      <span className="text-blue-600 text-sm font-medium flex items-center">
-                        Get Started <ArrowRight size={14} className="ml-1" />
+                      <span className="text-purple-600 text-sm font-medium flex items-center">
+                        Get Started <ArrowRight size={14} className="ml-1 transform group-hover:translate-x-1 transition-transform" />
                       </span>
                     </div>
                   </CardContent>
@@ -427,16 +445,16 @@ export default function DashboardPage() {
               </Link>
               
               <Link to="/students" className="block">
-                <Card className="hover:shadow-md transition-shadow border-green-200 hover:border-green-300 h-full">
+                <Card className="hover:shadow-md transition-all border-indigo-200 hover:border-indigo-300 h-full group">
                   <CardContent className="flex flex-col p-5">
-                    <div className="p-3 rounded-full bg-green-100 self-start mb-3">
-                      <Users className="h-5 w-5 text-green-600" />
+                    <div className="p-3 rounded-full bg-indigo-100 self-start mb-3 group-hover:bg-indigo-200 transition-colors">
+                      <Users className="h-5 w-5 text-indigo-600" />
                     </div>
                     <h3 className="font-medium mb-1">Manage Students</h3>
                     <p className="text-sm text-gray-500 mb-3">Add, edit or remove students</p>
                     <div className="mt-auto">
-                      <span className="text-green-600 text-sm font-medium flex items-center">
-                        View Students <ArrowRight size={14} className="ml-1" />
+                      <span className="text-indigo-600 text-sm font-medium flex items-center">
+                        View Students <ArrowRight size={14} className="ml-1 transform group-hover:translate-x-1 transition-transform" />
                       </span>
                     </div>
                   </CardContent>
@@ -444,16 +462,16 @@ export default function DashboardPage() {
               </Link>
               
               <Link to="/mcqs/create" className="block">
-                <Card className="hover:shadow-md transition-shadow border-purple-200 hover:border-purple-300 h-full">
+                <Card className="hover:shadow-md transition-all border-violet-200 hover:border-violet-300 h-full group">
                   <CardContent className="flex flex-col p-5">
-                    <div className="p-3 rounded-full bg-purple-100 self-start mb-3">
-                      <FileQuestion className="h-5 w-5 text-purple-600" />
+                    <div className="p-3 rounded-full bg-violet-100 self-start mb-3 group-hover:bg-violet-200 transition-colors">
+                      <FileQuestion className="h-5 w-5 text-violet-600" />
                     </div>
                     <h3 className="font-medium mb-1">Create MCQ</h3>
                     <p className="text-sm text-gray-500 mb-3">Generate questions with AI</p>
                     <div className="mt-auto">
-                      <span className="text-purple-600 text-sm font-medium flex items-center">
-                        Start Creating <ArrowRight size={14} className="ml-1" />
+                      <span className="text-violet-600 text-sm font-medium flex items-center">
+                        Start Creating <ArrowRight size={14} className="ml-1 transform group-hover:translate-x-1 transition-transform" />
                       </span>
                     </div>
                   </CardContent>
@@ -461,16 +479,16 @@ export default function DashboardPage() {
               </Link>
               
               <Link to="/analytics" className="block">
-                <Card className="hover:shadow-md transition-shadow border-amber-200 hover:border-amber-300 h-full">
+                <Card className="hover:shadow-md transition-all border-purple-200 hover:border-purple-300 h-full group">
                   <CardContent className="flex flex-col p-5">
-                    <div className="p-3 rounded-full bg-amber-100 self-start mb-3">
-                      <BarChart2 className="h-5 w-5 text-amber-600" />
+                    <div className="p-3 rounded-full bg-purple-100 self-start mb-3 group-hover:bg-purple-200 transition-colors">
+                      <BarChart2 className="h-5 w-5 text-purple-600" />
                     </div>
                     <h3 className="font-medium mb-1">View Analytics</h3>
                     <p className="text-sm text-gray-500 mb-3">Check student performance</p>
                     <div className="mt-auto">
-                      <span className="text-amber-600 text-sm font-medium flex items-center">
-                        View Reports <ArrowRight size={14} className="ml-1" />
+                      <span className="text-purple-600 text-sm font-medium flex items-center">
+                        View Reports <ArrowRight size={14} className="ml-1 transform group-hover:translate-x-1 transition-transform" />
                       </span>
                     </div>
                   </CardContent>

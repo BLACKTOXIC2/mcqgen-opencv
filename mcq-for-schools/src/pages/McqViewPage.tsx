@@ -64,7 +64,7 @@ export default function McqViewPage() {
     return (
       <Layout title="Loading MCQ...">
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
         </div>
       </Layout>
     );
@@ -75,7 +75,7 @@ export default function McqViewPage() {
       <Layout title="MCQ Not Found">
         <div className="text-center py-12">
           <p className="text-gray-600 mb-4">This MCQ does not exist or you don't have permission to view it.</p>
-          <Button onClick={() => navigate('/mcqs')}>Back to MCQs</Button>
+          <Button onClick={() => navigate('/mcqs')} className="bg-purple-600 hover:bg-purple-700 text-white">Back to MCQs</Button>
         </div>
       </Layout>
     );
@@ -89,6 +89,7 @@ export default function McqViewPage() {
           size="sm"
           leftIcon={<ArrowLeft size={16} />}
           onClick={() => navigate('/mcqs')}
+          className="border-purple-200 text-purple-700 hover:bg-purple-50"
         >
           Back to MCQs
         </Button>
@@ -96,6 +97,7 @@ export default function McqViewPage() {
           <Button
             leftIcon={<Eye size={16} />}
             onClick={() => setShowAnswers(!showAnswers)}
+            className="bg-purple-600 hover:bg-purple-700 text-white"
           >
             {showAnswers ? 'Hide Answers' : 'Show Answers'}
           </Button>
@@ -103,14 +105,15 @@ export default function McqViewPage() {
             variant="outline"
             leftIcon={isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
             onClick={toggleFullscreen}
+            className="border-purple-200 text-purple-700 hover:bg-purple-50"
           >
             {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
           </Button>
         </div>
       </div>
 
-      <Card className="mb-6">
-        <CardHeader>
+      <Card className="mb-6 border border-purple-200">
+        <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50">
           <h2 className="text-2xl font-bold text-gray-900">{mcq.title}</h2>
           {mcq.description && (
             <p className="mt-2 text-gray-600">{mcq.description}</p>
@@ -137,10 +140,10 @@ export default function McqViewPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
           >
-            <Card>
+            <Card className="border border-purple-200">
               <CardContent className="p-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="bg-primary-100 text-primary-700 text-sm font-medium px-2 py-1 rounded">
+                  <span className="bg-purple-100 text-purple-700 text-sm font-medium px-2 py-1 rounded">
                     Question {index + 1}
                   </span>
                 </div>
@@ -156,11 +159,11 @@ export default function McqViewPage() {
                       className={`p-4 rounded-lg border transition-all ${
                         showAnswers && question.correct_option === optIndex
                           ? 'border-green-200 bg-green-50'
-                          : 'border-gray-200 hover:border-gray-300'
+                          : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50'
                       }`}
                     >
                       <div className="flex items-center">
-                        <span className="w-8 h-8 flex items-center justify-center rounded-full border text-sm mr-3">
+                        <span className="w-8 h-8 flex items-center justify-center rounded-full border border-purple-200 text-sm mr-3 bg-purple-50 text-purple-700">
                           {String.fromCharCode(65 + optIndex)}
                         </span>
                         <span className={showAnswers && question.correct_option === optIndex ? 'font-medium' : ''}>

@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { FileUp, Scan, Info, Check, AlertTriangle, Plus, Trash2, ArrowRight } from 'lucide-react';
+import { FileUp, Scan, Info, Check, AlertTriangle, Plus, Trash2, ArrowRight, Camera, RefreshCcw, X, Save, RotateCcw } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Card, { CardHeader, CardContent } from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Select from '../components/ui/Select';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Mcq, Student } from '../lib/supabase';
+import { Badge } from '../components/ui/Badge';
 
 /**
  * Test Checking Page
@@ -50,6 +51,566 @@ type ScanResultFailure = {
 
 type ScanResultSuccess = OcrProcessingSuccessResult;
 
+// Camera modal component
+const CameraModal = ({
+  isOpen,
+  onClose,
+  onImageCaptured,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onImageCaptured: (imageDataUrl: string) => void;
+}) => {
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [captureCount, setCaptureCount] = useState<number>(0);
+  const [captureQuality, setCaptureQuality] = useState<number>(0.92);
+  const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait');
+  const [deviceOrientation, setDeviceOrientation] = useState<'portrait' | 'landscape'>('portrait');
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
+  
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  
+  // Start camera when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      // Detect device orientation
+      const updateOrientation = () => {
+        if (window.innerHeight > window.innerWidth) {
+          setDeviceOrientation('portrait');
+        } else {
+          setDeviceOrientation('landscape');
+        }
+      };
+      
+      // Initial check
+      updateOrientation();
+      
+      // Add event listener for orientation changes
+      window.addEventListener('resize', updateOrientation);
+      
+      startCamera();
+      
+      return () => {
+        window.removeEventListener('resize', updateOrientation);
+        stopCamera();
+      };
+    }
+  }, [isOpen]);
+  
+  // Restart camera when facing mode changes
+  useEffect(() => {
+    if (isOpen && !capturedImage) {
+      startCamera();
+    }
+  }, [facingMode, isOpen, capturedImage]);
+  
+  const startCamera = async () => {
+    try {
+      setError(null);
+      
+      if (stream) {
+        // Stop any existing stream
+        stopCamera();
+      }
+      
+      // Check if the device has multiple cameras
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devices.filter(device => device.kind === 'videoinput');
+      
+      // Set constraints based on device and desired orientation
+      const constraints: MediaStreamConstraints = {
+        video: {
+          facingMode: facingMode,
+          width: { ideal: 1920 },
+          height: { ideal: 1080 }
+        }
+      };
+      
+      const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+      setStream(mediaStream);
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+        
+        // Apply styles based on orientation when video metadata is loaded
+        videoRef.current.onloadedmetadata = () => {
+          adjustVideoOrientation();
+        };
+      }
+    } catch (err) {
+      console.error('Error accessing camera:', err);
+      setError('Could not access the camera. Please check permissions and try again.');
+    }
+  };
+  
+  const stopCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => {
+        track.stop();
+      });
+      setStream(null);
+    }
+    
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+  };
+  
+  const adjustVideoOrientation = () => {
+    if (!videoRef.current) return;
+    
+    // Check video dimensions to determine its natural orientation
+    const videoWidth = videoRef.current.videoWidth;
+    const videoHeight = videoRef.current.videoHeight;
+    const isVideoPortrait = videoHeight > videoWidth;
+    
+    // Check device orientation
+    const isDevicePortrait = window.innerHeight > window.innerWidth;
+    
+    // Set orientation based on both video and device orientation
+    // For mobile devices, prioritize device orientation
+    if (isDevicePortrait) {
+      setOrientation('portrait');
+    } else {
+      setOrientation('landscape');
+    }
+  };
+  
+  const toggleOrientation = () => {
+    setOrientation(prev => prev === 'portrait' ? 'landscape' : 'portrait');
+  };
+  
+  const takePhoto = () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    
+    // Get video dimensions
+    const videoWidth = video.videoWidth;
+    const videoHeight = video.videoHeight;
+    
+    // Match canvas to video aspect ratio
+    if (orientation === 'portrait') {
+      canvas.width = videoWidth;
+      canvas.height = videoHeight;
+    } else {
+      // For landscape, maintain aspect ratio but possibly swap dimensions
+      if (videoWidth > videoHeight) {
+        // Video is naturally landscape
+        canvas.width = videoWidth;
+        canvas.height = videoHeight;
+      } else {
+        // Video is portrait but we're in landscape mode
+        canvas.width = videoHeight;
+        canvas.height = videoWidth;
+      }
+    }
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    if (orientation === 'portrait') {
+      // Draw video directly for portrait mode
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    } else {
+      if (videoWidth > videoHeight) {
+        // Naturally landscape video
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      } else {
+        // Portrait video in landscape mode - rotate
+        ctx.save();
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.rotate(Math.PI / 2); // 90 degrees
+        ctx.drawImage(video, -videoWidth / 2, -videoHeight / 2, videoWidth, videoHeight);
+        ctx.restore();
+      }
+    }
+    
+    // Apply image processing to enhance readability if needed
+    
+    const imageSrc = canvas.toDataURL('image/jpeg', captureQuality);
+    setCapturedImage(imageSrc);
+    setCaptureCount(prev => prev + 1);
+  };
+  
+  const confirmCapture = () => {
+    if (capturedImage) {
+      onImageCaptured(capturedImage);
+      closeModal(); // Close modal after confirming the image
+    }
+  };
+  
+  const retakePhoto = () => {
+    setCapturedImage(null);
+  };
+  
+  const closeModal = () => {
+    stopCamera();
+    onClose();
+  };
+  
+  // Switch camera facing mode
+  const switchCamera = () => {
+    setFacingMode(prev => prev === 'environment' ? 'user' : 'environment');
+  };
+  
+  // Calculate container styles based on orientation
+  const containerClasses = `
+    relative overflow-hidden border-4 border-purple-500 rounded-lg
+    ${orientation === 'portrait' ? 'aspect-[3/4]' : 'aspect-[4/3]'}
+    max-h-[75vh] w-full max-w-full
+  `;
+
+  // Mobile responsive styles
+  const modalContainerClasses = `
+    fixed inset-0 z-50 flex items-center justify-center 
+    bg-black bg-opacity-75 p-2 sm:p-4 
+    overflow-y-auto
+  `;
+
+  const modalContentClasses = `
+    relative w-full max-w-lg mx-auto 
+    bg-white rounded-lg shadow-xl overflow-hidden
+    flex flex-col
+  `;
+  
+  return (
+    <>
+      {isOpen && (
+        <div className={modalContainerClasses}>
+          <div className={modalContentClasses}>
+            <button
+              onClick={closeModal}
+              className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200 z-10"
+            >
+              <X size={20} />
+            </button>
+            <h2 className="mb-2 mt-3 text-xl font-bold text-center text-purple-800">Capture Image</h2>
+            
+            <div className="relative px-2 pb-4 sm:px-4 flex-grow">
+              {/* Camera view with purple border */}
+              <div className={containerClasses}>
+                {!capturedImage ? (
+                  <>
+                    <video
+                      ref={videoRef}
+                      autoPlay
+                      playsInline
+                      muted
+                      className={`object-cover w-full h-full ${orientation === 'landscape' ? 'transform' : ''}`}
+                    />
+                    <div className="absolute inset-0 pointer-events-none border-2 border-dashed border-purple-300"></div>
+                    
+                    {/* Loading indicator */}
+                    {!stream && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-70">
+                        <div className="animate-spin w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full"></div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <img
+                    src={capturedImage}
+                    alt="Captured"
+                    className="object-contain w-full h-full"
+                  />
+                )}
+                
+                {/* Error message */}
+                {error && (
+                  <div className="absolute inset-x-0 bottom-0 bg-red-500 text-white p-2 text-sm">
+                    {error}
+                  </div>
+                )}
+              </div>
+
+              {/* Canvas for capturing (hidden) */}
+              <canvas ref={canvasRef} className="hidden" />
+
+              {/* Camera UI controls */}
+              <div className="flex items-center justify-center mt-4 space-x-4">
+                {!capturedImage ? (
+                  <>
+                    {stream && (
+                      <button
+                        onClick={takePhoto}
+                        className="flex items-center justify-center w-16 h-16 text-white bg-purple-600 rounded-full hover:bg-purple-700 shadow-lg"
+                        title="Take photo"
+                      >
+                        <Camera size={32} />
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <div className="flex justify-center w-full space-x-4">
+                    <button
+                      onClick={retakePhoto}
+                      className="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 rounded-md flex items-center justify-center text-gray-700"
+                    >
+                      <RefreshCcw size={20} className="mr-2" />
+                      Retake
+                    </button>
+                    <button
+                      onClick={confirmCapture}
+                      className="flex-1 px-4 py-3 bg-purple-600 hover:bg-purple-700 rounded-md flex items-center justify-center text-white"
+                    >
+                      <Check size={20} className="mr-2" />
+                      Confirm
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Camera options */}
+              {!capturedImage && stream && (
+                <div className="absolute bottom-4 right-4 space-y-2 flex flex-col items-end">
+                  <button
+                    onClick={switchCamera}
+                    className="p-3 text-white bg-purple-600 rounded-full hover:bg-purple-700 shadow-md"
+                    title="Switch camera"
+                  >
+                    <RefreshCcw size={20} />
+                  </button>
+                  <button
+                    onClick={toggleOrientation}
+                    className="p-3 text-white bg-purple-600 rounded-full hover:bg-purple-700 shadow-md"
+                    title="Toggle orientation"
+                  >
+                    <RotateCcw size={20} />
+                  </button>
+                </div>
+              )}
+
+              {!stream && !capturedImage && (
+                <div className="flex flex-col items-center justify-center w-full p-8">
+                  <p className="mb-4 text-gray-600">Camera access required to scan tests</p>
+                  <button
+                    onClick={startCamera}
+                    className="px-4 py-2 text-white bg-purple-600 rounded-md hover:bg-purple-700"
+                  >
+                    <Camera size={20} className="mr-1 inline" />
+                    Start Camera
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+const ScanProcessingSection = ({
+  processingStatus,
+  processingResults,
+  processingErrors,
+  onScanAgain,
+  onSave
+}: {
+  processingStatus: 'idle' | 'processing' | 'success' | 'error' | 'student-not-found';
+  processingResults: Array<OcrProcessingSuccessResult>;
+  processingErrors: Array<ScanResultFailure>;
+  onScanAgain: () => void;
+  onSave: () => void;
+}) => {
+  const [showDebug, setShowDebug] = useState(false);
+  const debugRef = useRef<HTMLDivElement>(null);
+  
+  // Scroll to bottom of debug when new errors are added
+  useEffect(() => {
+    if (showDebug && debugRef.current) {
+      debugRef.current.scrollTop = debugRef.current.scrollHeight;
+    }
+  }, [processingErrors, showDebug]);
+
+  // Function to get human-readable status text and color
+  const getStatusInfo = () => {
+    switch (processingStatus) {
+      case 'processing':
+        return { 
+          text: 'Processing images...', 
+          color: 'text-yellow-700 bg-yellow-50 border-yellow-200' 
+        };
+      case 'success':
+        return { 
+          text: 'Processing complete!', 
+          color: 'text-green-700 bg-green-50 border-green-200' 
+        };
+      case 'student-not-found':
+        return { 
+          text: 'Student ID not recognized', 
+          color: 'text-orange-700 bg-orange-50 border-orange-200' 
+        };
+      case 'error':
+        return { 
+          text: 'Failed to process some images', 
+          color: 'text-red-700 bg-red-50 border-red-200' 
+        };
+      default:
+        return { 
+          text: 'Ready to scan', 
+          color: 'text-gray-700 bg-gray-50 border-gray-200' 
+        };
+    }
+  };
+
+  const { text, color } = getStatusInfo();
+  const hasResults = processingResults.length > 0;
+  const hasErrors = processingErrors.length > 0;
+
+  return (
+    <div className="mt-6 space-y-4">
+      {/* Status indicator */}
+      <div className={`p-3 rounded-md border ${color} text-sm flex items-center space-x-2`}>
+        {processingStatus === 'processing' ? (
+          <div className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2" />
+        ) : processingStatus === 'success' ? (
+          <Check size={16} className="mr-2" />
+        ) : processingStatus === 'error' || processingStatus === 'student-not-found' ? (
+          <AlertTriangle size={16} className="mr-2" />
+        ) : null}
+        <span>{text}</span>
+      </div>
+      
+      {/* Results display section */}
+      {hasResults && (
+        <div className="bg-white border border-gray-200 rounded-md shadow-sm overflow-hidden">
+          <div className="bg-gradient-to-r from-purple-50 to-indigo-50 px-4 py-3 border-b border-gray-200">
+            <h3 className="font-medium text-purple-800">Scan Results</h3>
+          </div>
+          
+          <div className="divide-y divide-gray-100">
+            {processingResults.map((result, index) => (
+              <div key={index} className="p-4 hover:bg-gray-50">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="font-medium text-gray-900">
+                      Student: {result.studentName || 'Unknown'}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      ID: {result.studentId || 'N/A'}
+                    </div>
+                    <div className="text-sm text-gray-500 mt-1">
+                      Score: <span className="font-medium text-purple-700">{result.score} / {result.totalQuestions}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="text-right">
+                    <div className="text-xs text-gray-500">Answers:</div>
+                    <div className="mt-1 flex flex-wrap gap-1 justify-end max-w-[200px]">
+                      {Object.entries(result.answers).map(([qNum, answer]) => (
+                        <span 
+                          key={qNum} 
+                          className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800"
+                          title={`Question ${qNum}: ${answer}`}
+                        >
+                          {qNum}:{answer}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {processingStatus === 'success' && (
+            <div className="bg-gray-50 px-4 py-3 flex justify-end space-x-3 border-t border-gray-200">
+              <button
+                onClick={onScanAgain}
+                className="px-3 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50 text-gray-700 flex items-center"
+              >
+                <Scan size={16} className="mr-1" />
+                Scan Another
+              </button>
+              <button
+                onClick={onSave}
+                className="px-3 py-1.5 text-sm border border-transparent rounded-md shadow-sm bg-purple-600 hover:bg-purple-700 text-white flex items-center"
+              >
+                <Save size={16} className="mr-1" />
+                Save Results
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+      
+      {/* Error display */}
+      {hasErrors && (
+        <div className="bg-white border border-red-200 rounded-md shadow-sm overflow-hidden">
+          <div className="bg-red-50 px-4 py-3 border-b border-red-200 flex justify-between items-center">
+            <h3 className="font-medium text-red-800 flex items-center">
+              <AlertTriangle size={16} className="mr-2" />
+              Failed to Process {processingErrors.length} Image{processingErrors.length !== 1 ? 's' : ''}
+            </h3>
+            <button
+              onClick={() => setShowDebug(!showDebug)}
+              className="text-xs px-2 py-1 rounded border border-red-300 bg-white text-red-700 hover:bg-red-50"
+            >
+              {showDebug ? 'Hide Details' : 'Show Details'}
+            </button>
+          </div>
+          
+          {showDebug && (
+            <div 
+              ref={debugRef}
+              className="p-4 max-h-[300px] overflow-y-auto bg-gray-900 text-gray-200 font-mono text-xs"
+            >
+              {processingErrors.map((error, index) => (
+                <div key={index} className="mb-3 border-b border-gray-700 pb-3 last:border-0 last:mb-0 last:pb-0">
+                  <div className="flex justify-between items-start">
+                    <span className="text-red-400">Error ({new Date(error.timestamp).toLocaleTimeString()})</span>
+                    <span className="text-gray-400 text-xs">{error.code}</span>
+                  </div>
+                  <div className="mt-1 text-gray-300 whitespace-pre-wrap">{error.message}</div>
+                  {error.details && (
+                    <div className="mt-2 text-gray-400 text-xs">{error.details}</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          
+          <div className="bg-gray-50 px-4 py-3 flex justify-end space-x-3 border-t border-gray-200">
+            <button
+              onClick={onScanAgain}
+              className="px-3 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50 text-gray-700 flex items-center"
+            >
+              <RefreshCcw size={16} className="mr-1" />
+              Try Again
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {/* Actions when idle */}
+      {processingStatus === 'idle' && !hasResults && !hasErrors && (
+        <div className="text-center p-6 bg-white border border-dashed border-gray-300 rounded-md">
+          <div className="text-gray-400 mb-3">
+            <Scan size={32} className="mx-auto" />
+          </div>
+          <p className="text-gray-600 mb-4">Ready to scan answer sheets</p>
+          <button
+            onClick={onScanAgain}
+            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md shadow-sm flex items-center mx-auto"
+          >
+            <Camera size={16} className="mr-2" />
+            Start Scanning
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function TestCheckingPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -70,6 +631,14 @@ export default function TestCheckingPage() {
   const [editingResult, setEditingResult] = useState<ScanResultSuccess | null>(null);
   const [editedAnswers, setEditedAnswers] = useState<Record<number, string>>({});
   const [duplicateDetected, setDuplicateDetected] = useState(false);
+  
+  // Camera functionality
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const [cameraError, setCameraError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchMcqs();
@@ -81,6 +650,15 @@ export default function TestCheckingPage() {
       fetchStudents();
     }
   }, [selectedMcq]);
+  
+  // Clean up camera stream when component unmounts
+  useEffect(() => {
+    return () => {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [cameraStream]);
 
   const fetchMcqs = async () => {
     try {
@@ -114,17 +692,6 @@ export default function TestCheckingPage() {
         .single();
 
       if (error) throw error;
-      
-      // Log the full MCQ data to understand its structure
-      console.log('Raw MCQ data from database:', data);
-      
-      if (data && data.questions) {
-        console.log('MCQ questions structure sample:', data.questions[0]);
-        // Log the correct_option value to ensure it exists and is accessible
-        console.log('First question correct_option:', 
-          data.questions[0]?.correct_option !== undefined ? 
-          data.questions[0].correct_option : 'undefined');
-      }
       
       setMcqDetails(data);
     } catch (error) {
@@ -201,6 +768,43 @@ export default function TestCheckingPage() {
     // Revoke the URL to prevent memory leaks
     URL.revokeObjectURL(imageUrls[index]);
     setImageUrls(prev => prev.filter((_, i) => i !== index));
+  };
+  
+  // Camera functionality
+  const openCamera = () => {
+    if (!selectedMcq) {
+      alert('Please select an MCQ test first');
+      return;
+    }
+    
+    // Simply open the camera modal
+    setIsCameraOpen(true);
+  };
+  
+  const closeCamera = () => {
+    setIsCameraOpen(false);
+  };
+  
+  const handleImageCaptured = (imageDataUrl: string) => {
+    if (imageDataUrl) {
+      try {
+        // Convert data URL to file
+        fetch(imageDataUrl)
+          .then(res => res.blob())
+          .then(blob => {
+            const file = new File([blob], `captured-${Date.now()}.jpg`, { type: 'image/jpeg' });
+            
+            // Add to uploaded images
+            setUploadedImages(prev => [...prev, file]);
+            setImageUrls(prev => [...prev, imageDataUrl]);
+          })
+          .catch(error => {
+            console.error('Error converting captured image:', error);
+          });
+      } catch (error) {
+        console.error('Error processing captured photo:', error);
+      }
+    }
   };
 
   const scanAnswerSheets = async () => {
@@ -709,6 +1313,7 @@ Are you sure you want to save these results?`;
   return (
     <Layout title="Test Checking">
       <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Test Scanning & Grading</h1>
         <p className="text-gray-600">
           Upload and scan student answer sheets for automated grading using the OpenCV OMR processing system
         </p>
@@ -724,14 +1329,14 @@ Are you sure you want to save these results?`;
           </div>
         )}
         
-        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
-          <h3 className="text-blue-800 font-medium">ℹ️ Integration Information</h3>
-          <p className="text-sm text-blue-700 mt-1">
+        <div className="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-md">
+          <h3 className="text-purple-800 font-medium">ℹ️ Integration Information</h3>
+          <p className="text-sm text-purple-700 mt-1">
             This application is now connected to the OpenCV OMR processing system. Images are sent directly 
             to the OpenCV API running at {import.meta.env.VITE_OPENCV_API_URL || 'https://api.mcqgen.xyz'}.
             Make sure the OpenCV server is running before scanning answer sheets.
           </p>
-          <p className="text-sm text-blue-700 mt-2">
+          <p className="text-sm text-purple-700 mt-2">
             <strong>Note:</strong> You may need to adjust CORS settings on the OpenCV server if you encounter connection issues.
           </p>
         </div>
@@ -739,10 +1344,10 @@ Are you sure you want to save these results?`;
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Step 1: Select MCQ */}
-        <Card className={`h-full ${selectedMcq ? 'border-primary-100' : ''}`}>
-          <CardHeader>
-            <h2 className="font-medium flex items-center">
-              <span className="bg-primary-50 text-primary-700 rounded-full w-6 h-6 inline-flex items-center justify-center mr-2 text-sm">1</span>
+        <Card className={`h-full ${selectedMcq ? 'border-purple-100' : ''}`}>
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50">
+            <h2 className="font-medium flex items-center text-purple-700">
+              <span className="bg-purple-100 text-purple-700 rounded-full w-6 h-6 inline-flex items-center justify-center mr-2 text-sm">1</span>
               Select MCQ
             </h2>
           </CardHeader>
@@ -761,11 +1366,11 @@ Are you sure you want to save these results?`;
             />
 
             {mcqDetails && (
-              <div className="mt-4 p-3 bg-gray-50 rounded-md">
-                <h3 className="font-medium text-sm">{mcqDetails.title}</h3>
-                <p className="text-xs text-gray-600">{mcqDetails.questions.length} questions</p>
+              <div className="mt-4 p-3 bg-purple-50 rounded-md border border-purple-100">
+                <h3 className="font-medium text-sm text-purple-800">{mcqDetails.title}</h3>
+                <p className="text-xs text-purple-600">{mcqDetails.questions.length} questions</p>
                 {students.length > 0 && (
-                  <p className="text-xs text-gray-600 mt-1">{students.length} students in class</p>
+                  <p className="text-xs text-purple-600 mt-1">{students.length} students in class</p>
                 )}
               </div>
             )}
@@ -777,7 +1382,7 @@ Are you sure you want to save these results?`;
                 id="debug-mode"
                 checked={debugMode}
                 onChange={() => setDebugMode(!debugMode)}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
               />
               <label htmlFor="debug-mode" className="ml-2 text-sm text-gray-600">
                 Enable Debug Mode
@@ -787,53 +1392,68 @@ Are you sure you want to save these results?`;
         </Card>
 
         {/* Step 2: Upload Answer Sheets */}
-        <Card className={`h-full ${uploadedImages.length > 0 ? 'border-primary-100' : ''}`}>
-          <CardHeader>
-            <h2 className="font-medium flex items-center">
-              <span className="bg-primary-50 text-primary-700 rounded-full w-6 h-6 inline-flex items-center justify-center mr-2 text-sm">2</span>
+        <Card className={`h-full ${uploadedImages.length > 0 ? 'border-purple-100' : ''}`}>
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50">
+            <h2 className="font-medium flex items-center text-purple-700">
+              <span className="bg-purple-100 text-purple-700 rounded-full w-6 h-6 inline-flex items-center justify-center mr-2 text-sm">2</span>
               Upload Answer Sheets
             </h2>
           </CardHeader>
           <CardContent>
-            <div className="text-center p-4 border-2 border-dashed border-gray-300 rounded-md hover:border-primary-300 transition-colors">
-              <FileUp className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+            <div className="text-center p-4 border-2 border-dashed border-purple-200 rounded-md hover:border-purple-300 transition-colors">
+              <FileUp className="mx-auto h-8 w-8 text-purple-400 mb-2" />
               <p className="text-sm text-gray-600 mb-2">Upload scanned answer sheets</p>
-              <input
-                type="file"
-                id="file-upload"
-                multiple
-                accept="image/*"
-                onChange={handleFileChange}
-                className="hidden"
-                disabled={!selectedMcq || processing}
-              />
-              <label htmlFor="file-upload" className={`inline-block ${!selectedMcq || processing ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}>
-                <div className={`flex items-center justify-center px-4 py-2 rounded-md ${!selectedMcq || processing ? 'bg-gray-200 text-gray-500' : 'bg-primary-500 text-white hover:bg-primary-600'} transition-colors`}>
-                  <Plus size={16} className="mr-2" />
-                  Add Images
-                </div>
-              </label>
+              
+              <div className="flex justify-center gap-3 mt-4">
+                <input
+                  type="file"
+                  id="file-upload"
+                  multiple
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  disabled={!selectedMcq || processing}
+                />
+                <label htmlFor="file-upload" className={`inline-block ${!selectedMcq || processing ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}>
+                  <div className={`flex items-center justify-center px-4 py-2 rounded-md ${!selectedMcq || processing ? 'bg-gray-200 text-gray-500' : 'bg-purple-600 text-white hover:bg-purple-700'} transition-colors`}>
+                    <Plus size={16} className="mr-2" />
+                    Add Images
+                  </div>
+                </label>
+                
+                <button
+                  onClick={openCamera}
+                  disabled={!selectedMcq || processing}
+                  className={`flex items-center justify-center px-4 py-2 rounded-md ${!selectedMcq || processing ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-indigo-700 cursor-pointer'} transition-colors`}
+                >
+                  <Camera size={16} className="mr-2" />
+                  Use Camera
+                </button>
+              </div>
             </div>
 
             {uploadedImages.length > 0 && (
               <div className="mt-4">
-                <p className="text-sm font-medium mb-2">Uploaded Images ({uploadedImages.length})</p>
+                <p className="text-sm font-medium mb-2 text-purple-700">Uploaded Images ({uploadedImages.length})</p>
                 <div className="grid grid-cols-2 gap-2">
                   {imageUrls.map((url, index) => (
-                    <div key={index} className="relative rounded-md overflow-hidden border border-gray-200 bg-gray-50">
-                      <img 
-                        src={url} 
-                        alt={`Uploaded ${index + 1}`} 
-                        className="w-full h-32 object-contain" 
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik01LjUgMjMgNSA1IDQuNSA5LjVIMlYxaC4yNWMxLjM3NCAwIDIuNzUuMjAzIDQuMDk5LjYwNCAxLjQ0NS40OTYgMi42OTkgMS4yNDMgMy43NSAyLjIyN2EzLjM5OSAzLjM5OSAwIDAgMCAuNDY0LjM5NEMxMS41NjMgNS4wNjggMTIuNCAzLjk4MyAxNC4xIDMuMDg2IDE1LjQ1IDIuMzQ3IDE2Ljk1IDIgMTguNSAySDIwdjhoLTJ2LTZoLS4yNWMtMS4wMjEgMC0yLjAyNy4yNDMtMi45NzguNzExLTEuMDQxLjUxMy0xLjgxNiAxLjEzNC0yLjI5NyAxLjg0NEMxMS45MyA3LjQxOCAxMS41MjkgOC40MjMgMTAuOTc4IDkuMzA4IDEwLjM2NyAxMC4yOTggOS42MyAxMSA4LjUgMTFoLTJ2OC42ODRDNi4zNDQgMTkuODkxIDYgMjAuMzQyIDYgMjAuODV2LjE1SDVjLS4xMSAwLS4yLTEuMDItLjUtMnoiIGZpbGw9IiNkZGQiLz48L3N2Zz4=';
-                          target.classList.add('p-4');
-                        }}
-                      />
+                    <div key={index} className="relative rounded-md overflow-hidden border border-purple-200 group hover:shadow-md transition-all">
+                      <div className="relative">
+                        <img 
+                          src={url} 
+                          alt={`Uploaded ${index + 1}`} 
+                          className="w-full h-32 object-contain" 
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik01LjUgMjMgNSA1IDQuNSA5LjVIMlYxaC4yNWMxLjM3NCAwIDIuNzUuMjAzIDQuMDk5LjYwNCAxLjQ0NS40OTYgMi42OTkgMS4yNDMgMy43NSAyLjIyN2EzLjM5OSAzLjM5OSAwIDAgMCAuNDY0LjM5NEMxMS41NjMgNS4wNjggMTIuNCAzLjk4MyAxNC4xIDMuMDg2IDE1LjQ1IDIuMzQ3IDE2Ljk1IDIgMTguNSAySDIwdjhoLTJ2LTZoLS4yNWMtMS4wMjEgMC0yLjAyNy4yNDMtMi45NzguNzExLTEuMDQxLjUxMy0xLjEzNC0yLjI5NyAxLjg0NEMxMS45MyA3LjQxOCAxMS41MjkgOC40MjMgMTAuOTc4IDkuMzA4IDEwLjM2NyAxMC4yOTggOS42MyAxMSA4LjUgMTFoLTJ2OC42ODRDNi4zNDQgMTkuODkxIDYgMjAuMzQyIDYgMjAuODV2LjE1SDVjLS4xMSAwLS4yLTEuMDItLjUtMnoiIGZpbGw9IiNkZGQiLz48L3N2Zz4=';
+                            target.classList.add('p-4');
+                          }}
+                        />
+                        <div className="absolute inset-0 group-hover:bg-black group-hover:bg-opacity-20 transition-all"></div>
+                      </div>
                       <button
                         onClick={() => removeImage(index)}
-                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300"
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 opacity-80 hover:opacity-100"
                         disabled={processing}
                         aria-label="Remove image"
                       >
@@ -861,9 +1481,9 @@ Are you sure you want to save these results?`;
 
         {/* Step 3: Scan and Process */}
         <Card className="h-full">
-          <CardHeader>
-            <h2 className="font-medium flex items-center">
-              <span className="bg-primary-50 text-primary-700 rounded-full w-6 h-6 inline-flex items-center justify-center mr-2 text-sm">3</span>
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50">
+            <h2 className="font-medium flex items-center text-purple-700">
+              <span className="bg-purple-100 text-purple-700 rounded-full w-6 h-6 inline-flex items-center justify-center mr-2 text-sm">3</span>
               Process and Save
             </h2>
           </CardHeader>
@@ -871,7 +1491,7 @@ Are you sure you want to save these results?`;
             <div className="space-y-4">
               <Button
                 leftIcon={<Scan size={16} />}
-                className="w-full"
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white"
                 disabled={!selectedMcq || uploadedImages.length === 0 || processing}
                 isLoading={processing}
                 onClick={scanAnswerSheets}
@@ -879,16 +1499,16 @@ Are you sure you want to save these results?`;
                 Scan Answer Sheets
               </Button>
 
-              <div className="p-3 bg-yellow-50 rounded-md text-yellow-700 text-sm">
-                OCR functionality has been removed. You need to implement your own solution.
+              <div className="p-3 bg-yellow-50 rounded-md text-yellow-700 text-sm border border-yellow-200">
+                OCR functionality has been integrated. Use high quality images for best results.
               </div>
 
               {scanResults.length > 0 && (
                 <div className="mt-4">
-                  <p className="text-sm font-medium mb-2">Results:</p>
-                  <div className="space-y-2">
+                  <p className="text-sm font-medium mb-2 text-purple-700">Results:</p>
+                  <div className="space-y-2 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
                     {scanResults.map((result, index) => (
-                      <div key={index} className="p-3 bg-gray-50 rounded-md">
+                      <div key={index} className="p-3 bg-purple-50 rounded-md border border-purple-100 hover:shadow-md transition-all">
                         <div className="flex justify-between items-center mb-2">
                           <div>
                             <div className="flex items-center gap-2 mb-1">
@@ -898,7 +1518,7 @@ Are you sure you want to save these results?`;
                               <Select
                                 value={result.student.id}
                                 onChange={(e) => reassignStudent(index, e.target.value)}
-                                className="ml-2 text-xs py-1 px-1 h-7 min-h-0"
+                                className="ml-2 text-xs py-1 px-1 h-7 min-h-0 border-purple-200"
                                 aria-label="Reassign student"
                                 options={students.map(student => ({
                                   value: student.id,
@@ -924,13 +1544,13 @@ Are you sure you want to save these results?`;
                             )}
                           </div>
                           <div className="text-right">
-                            <p className="font-bold text-primary-700">{result.score}/{result.totalQuestions}</p>
+                            <p className="font-bold text-purple-700">{result.score}/{result.totalQuestions}</p>
                             <p className="text-xs text-gray-600">{result.percentage}%</p>
                           </div>
                         </div>
                         
                         {/* Answer comparison */}
-                        <div className="mt-2 border-t pt-2">
+                        <div className="mt-2 border-t border-purple-100 pt-2">
                           <div className="text-xs text-gray-500 mb-1">Answer Summary:</div>
                           <div className="flex flex-wrap gap-1">
                             {result.questionResults.map((qResult: {
@@ -977,458 +1597,103 @@ Are you sure you want to save these results?`;
                               );
                             })}
                           </div>
-                          
-                          {/* Detailed results (expandable) */}
-                          {result.questionResults.length > 0 && (
-                            <details className="mt-2">
-                              <summary className="text-xs text-primary-600 cursor-pointer">
-                                Show detailed answers
-                              </summary>
-                              <div className="mt-2 space-y-2 border-t pt-2">
-                                {result.questionResults.map((qResult: {
-                                  questionNumber: number;
-                                  questionText: string;
-                                  studentAnswer: string;
-                                  studentOptionIndex: number;
-                                  correctAnswer: string;
-                                  correctOptionIndex: number;
-                                  isCorrect: boolean;
-                                  isUnanswered?: boolean;
-                                  confidence?: 'high' | 'medium' | 'low' | 'very-low';
-                                }, i: number) => {
-                                  const questionData = mcqDetails?.questions[qResult.questionNumber - 1];
-                                  
-                                  // For unanswered questions, show special UI
-                                  if (qResult.studentOptionIndex === -1) {
-                                    return (
-                                      <div key={i} className="text-xs p-2 border rounded bg-gray-50">
-                                        <div className="font-medium mb-1 flex justify-between">
-                                          <span>Q{qResult.questionNumber}: {qResult.questionText}</span>
-                                          <span className="text-gray-500 text-xs">No Answer</span>
-                                        </div>
-                                        <div className="p-1 rounded bg-gray-100 text-gray-600">
-                                          <span className="font-medium">Not answered by student</span>
-                                        </div>
-                                        <div className="mt-1 p-1 rounded bg-green-50">
-                                          <span className="font-medium">Correct answer:</span> {qResult.correctAnswer}
-                                        </div>
-                                      </div>
-                                    );
-                                  }
-                                  
-                                  const confidenceLabel = qResult.confidence === 'high' 
-                                    ? "High Confidence" 
-                                    : qResult.confidence === 'medium' 
-                                      ? "Medium Confidence" 
-                                      : "Low Confidence";
-                                  
-                                  const confidenceColor = qResult.confidence === 'high' 
-                                    ? "text-green-600" 
-                                    : qResult.confidence === 'medium' 
-                                      ? "text-amber-600" 
-                                      : "text-red-600";
-                                  
-                                  return (
-                                    <div key={i} className="text-xs p-2 border rounded">
-                                      <div className="font-medium mb-1 flex justify-between">
-                                        <span>Q{qResult.questionNumber}: {qResult.questionText}</span>
-                                        <span className={`${confidenceColor} text-xs`}>{confidenceLabel}</span>
-                                      </div>
-                                      
-                                      <div className="grid grid-cols-2 gap-1">
-                                        <div className={`p-1 rounded ${qResult.isCorrect ? 'bg-green-50' : 'bg-red-50'}`}>
-                                          <span className="font-medium">Student answered:</span> {qResult.studentAnswer}
-                                        </div>
-                                        <div className="p-1 rounded bg-green-50">
-                                          <span className="font-medium">Correct answer:</span> {qResult.correctAnswer}
-                                        </div>
-                                      </div>
-                                      {questionData?.options && (
-                                        <div className="mt-1 grid grid-cols-2 gap-1">
-                                          {questionData.options.map((option: string, j: number) => (
-                                            <div 
-                                              key={j}
-                                              className={`p-1 rounded text-xs ${
-                                                j === qResult.correctOptionIndex ? 'bg-green-50 border-green-200 border' : 
-                                                j === qResult.studentOptionIndex && !qResult.isCorrect ? 'bg-red-50 border-red-200 border' : 
-                                                'bg-gray-50'
-                                              }`}
-                                            >
-                                              <span className="font-medium">{String.fromCharCode(65 + j)}:</span> {option}
-                                            </div>
-                                          ))}
-                                        </div>
-                                      )}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </details>
-                          )}
                         </div>
                       </div>
                     ))}
                   </div>
-
-                  <Button
-                    leftIcon={<Check size={16} />}
-                    className="w-full mt-4"
-                    disabled={scanResults.length === 0 || savingResults}
-                    isLoading={savingResults}
-                    onClick={saveResults}
-                  >
-                    Save Results
-                  </Button>
-
-                  {scanResults.length === 1 && (
-                    <Button
-                      rightIcon={<ArrowRight size={16} />}
-                      variant="outline"
-                      className="w-full mt-2"
-                      disabled={savingResults}
-                      onClick={() => navigate(`/students/${scanResults[0].student.id}/analytics`)}
-                    >
-                      View Student Analytics
-                    </Button>
-                  )}
                 </div>
               )}
 
               {uploadedImages.length > 0 && scanResults.length === 0 && !processing && (
-                <div className="p-3 bg-blue-50 rounded-md text-blue-700 text-sm">
+                <div className="p-3 bg-purple-50 rounded-md text-purple-700 text-sm border border-purple-100">
                   <Info size={16} className="inline-block mr-1" />
-                  Click "Scan Answer Sheets" to begin processing images with Gemini AI
-                </div>
-              )}
-
-              {/* Display processing errors */}
-              {processingErrors.length > 0 && (
-                <div className="mt-4 border border-yellow-200 rounded-md bg-yellow-50 p-3">
-                  <div className="flex items-center text-yellow-800 mb-2">
-                    <AlertTriangle size={16} className="mr-2" />
-                    <p className="text-sm font-medium">
-                      {processingErrors.length === 1 
-                        ? "1 answer sheet couldn't be processed" 
-                        : `${processingErrors.length} answer sheets couldn't be processed`}
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-2 mt-2">
-                    {processingErrors.map((error, index) => (
-                      <div key={index} className="bg-white p-2 rounded border border-yellow-100 text-xs">
-                        <div className="flex justify-between">
-                          <div>
-                            <span className="font-medium">Image {error.imageIndex + 1}:</span>
-                            {error.studentName && error.studentName !== 'Unknown' && (
-                              <span className="ml-1">{error.studentName}</span>
-                            )}
-                            {error.rollNumber && error.rollNumber !== 'Unknown' && (
-                              <span className="ml-1">(#{error.rollNumber})</span>
-                            )}
-                          </div>
-                          <div className="text-red-600">{error.errorMessage}</div>
-                        </div>
-                        <div className="mt-1 text-gray-600">
-                          {error.errorMessage.includes('No matching student') ? (
-                            <div className="flex items-center">
-                              <Info size={12} className="mr-1" />
-                              <span>Tip: Check if student name or roll number matches exactly with your records</span>
-                            </div>
-                          ) : error.errorMessage.includes('parsing') ? (
-                            <div className="flex items-center">
-                              <Info size={12} className="mr-1" />
-                              <span>Tip: Check image quality and ensure answer sheet is visible</span>
-                            </div>
-                          ) : (
-                            <div className="flex items-center">
-                              <Info size={12} className="mr-1" />
-                              <span>Tip: Try re-uploading a clearer image</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {Object.values(processingStatus).some(status => 
-                status === 'error' || status === 'student_not_found') && (
-                <div className="p-3 bg-yellow-50 rounded-md text-yellow-700 text-sm">
-                  <AlertTriangle size={16} className="inline-block mr-1" />
-                  Some sheets couldn't be processed. Check for image quality or verify student information.
-                </div>
-              )}
-              
-              {/* Debug Information Panel */}
-              {debugMode && mcqDetails && (
-                <div className="mt-4 border border-blue-200 rounded-md bg-blue-50 p-3">
-                  <div className="flex items-center text-blue-800 mb-2">
-                    <Info size={16} className="mr-2" />
-                    <p className="text-sm font-medium">Debug Information</p>
-                  </div>
-                  
-                  <div className="text-xs">
-                    <details>
-                      <summary className="cursor-pointer text-blue-700 hover:text-blue-900">MCQ Structure Data</summary>
-                      <div className="mt-2 p-2 bg-white rounded border border-blue-100">
-                        <p><strong>Title:</strong> {mcqDetails.title}</p>
-                        <p><strong>Questions:</strong> {mcqDetails.questions?.length || 0}</p>
-                        <p className="mt-2"><strong>First 3 Questions' Correct Answers:</strong></p>
-                        {mcqDetails.questions?.slice(0, 3).map((q, i) => (
-                          <div key={i} className="mt-1 p-1 border-t">
-                            <p>
-                              <strong>Q{i+1}:</strong> {q.correct_option !== undefined ? 
-                                <span className="font-medium text-green-600">
-                                  {["A", "B", "C", "D"][q.correct_option]}
-                                </span> : 
-                                <span className="text-red-600">Unknown</span>
-                              }
-                              {' '}- Type: <code>{typeof q.correct_option}</code>, 
-                              Raw value: <code>{q.correct_option}</code>
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </details>
-                    
-                    {scanResults.length > 0 && (
-                      <details className="mt-2">
-                        <summary className="cursor-pointer text-blue-700 hover:text-blue-900">Scoring Data</summary>
-                        <div className="mt-2 p-2 bg-white rounded border border-blue-100">
-                          {scanResults.map((result, idx) => (
-                            <div key={idx} className="mb-3">
-                              <p><strong>{result.student.name}</strong> (Roll: {result.student.roll}):</p>
-                              <p>Score: {result.score}/{result.totalQuestions} ({result.percentage}%)</p>
-                              <p>Answers found: {result.questionResults.length}</p>
-                              
-                              <table className="w-full mt-1 border-collapse border border-gray-200">
-                                <thead>
-                                  <tr className="bg-gray-100">
-                                    <th className="p-1 border text-center">Q#</th>
-                                    <th className="p-1 border text-center">Student</th>
-                                    <th className="p-1 border text-center">Correct</th>
-                                    <th className="p-1 border text-center">Status</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {result.questionResults.map((qr: { questionNumber: number; studentAnswer: string; correctAnswer: string; isCorrect: boolean }, qIdx: number) => (
-                                    <tr key={qIdx} className={qr.isCorrect ? "bg-green-50" : "bg-red-50"}>
-                                      <td className="p-1 border text-center">{qr.questionNumber}</td>
-                                      <td className="p-1 border text-center">{qr.studentAnswer}</td>
-                                      <td className="p-1 border text-center">{qr.correctAnswer}</td>
-                                      <td className="p-1 border text-center">
-                                        {qr.isCorrect ? 
-                                          <span className="text-green-600">✓</span> : 
-                                          <span className="text-red-600">✗</span>
-                                        }
-                                      </td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          ))}
-                        </div>
-                      </details>
-                    )}
-                  </div>
+                  Click "Scan Answer Sheets" to process the uploaded images
                 </div>
               )}
             </div>
           </CardContent>
         </Card>
       </div>
-
-      {/* Manual Correction Modal */}
-      {editingResult && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-4 border-b">
-              <h2 className="text-lg font-medium">Manual Correction</h2>
-              <p className="text-sm text-gray-600">
-                {editingResult.testTitle && editingResult.testTitle !== "Unknown Test" 
-                  ? editingResult.testTitle 
-                  : mcqDetails?.title || "Answer Sheet"}
-                {editingResult.classInfo && ` • ${editingResult.classInfo}`}
-              </p>
-              <p className="text-sm text-gray-500 mt-1">
-                Correct any recognition errors for {editingResult.student.name}'s answer sheet
-              </p>
-            </div>
-            
-            <div className="p-4">
-              <div className="mb-4 flex justify-between">
-                <div>
-                  <p className="font-medium">{editingResult.student.name}</p>
-                  <p className="text-sm text-gray-600">Roll: {editingResult.student.roll}</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-primary-700">{editingResult.score}/{editingResult.totalQuestions}</p>
-                  <p className="text-sm text-gray-600">{editingResult.percentage}%</p>
+      
+      {/* Camera Interface Modal */}
+      {isCameraOpen && (
+        <CameraModal
+          isOpen={isCameraOpen}
+          onClose={closeCamera}
+          onImageCaptured={handleImageCaptured}
+        />
+      )}
+      
+      {/* Scan Failures Section */}
+      {scanResults.length > 0 && processingErrors.length > 0 && (
+        <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+          <h3 className="text-yellow-800 font-medium flex items-center">
+            <AlertTriangle size={16} className="mr-2" />
+            Some answer sheets couldn't be processed
+          </h3>
+          
+          <div className="mt-3 space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+            {processingErrors.map((failure, index) => (
+              <div key={index} className="p-3 bg-white rounded border border-yellow-200 text-sm">
+                <div className="flex justify-between">
+                  <div>
+                    <p className="font-medium text-yellow-800">Image {index + 1}</p>
+                    {failure.studentName && (
+                      <p className="text-xs text-gray-600">Student: {failure.studentName}</p>
+                    )}
+                    {failure.rollNumber && (
+                      <p className="text-xs text-gray-600">Roll Number: {failure.rollNumber}</p>
+                    )}
+                  </div>
+                  <div>
+                    <Badge color="yellow">
+                      {failure.errorMessage}
+                    </Badge>
+                  </div>
                 </div>
               </div>
-              
-              <div className="border rounded-md overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Q#</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Question</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Detected</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Correct</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {editingResult.questionResults.map((qr, idx) => {
-                      const currentAnswer = editedAnswers[qr.questionNumber] || qr.studentAnswer;
-                      const optionChanged = currentAnswer !== qr.studentAnswer;
-                      
-                      // Dynamic calculation for correctness based on edited option
-                      let isCorrectNow = qr.isCorrect;
-                      if (optionChanged && mcqDetails) {
-                        const questionData = mcqDetails.questions[qr.questionNumber - 1];
-                        const correctOptionIndex = Number(questionData?.correct_option);
-                        let currentOptionIndex = -1;
-                        
-                        if (currentAnswer === 'A') currentOptionIndex = 0;
-                        else if (currentAnswer === 'B') currentOptionIndex = 1;
-                        else if (currentAnswer === 'C') currentOptionIndex = 2; 
-                        else if (currentAnswer === 'D') currentOptionIndex = 3;
-                        
-                        isCorrectNow = !isNaN(correctOptionIndex) && currentOptionIndex === correctOptionIndex;
-                      }
-                      
-                      return (
-                        <tr key={idx} className={optionChanged ? "bg-blue-50" : ""}>
-                          <td className="px-3 py-2 whitespace-nowrap text-sm">{qr.questionNumber}</td>
-                          <td className="px-3 py-2 text-sm max-w-xs truncate">{qr.questionText}</td>
-                          <td className="px-3 py-2 whitespace-nowrap text-sm">
-                            {qr.studentAnswer ? qr.studentAnswer : <span className="text-gray-400">Not answered</span>}
-                          </td>
-                          <td className="px-3 py-2 whitespace-nowrap text-sm">
-                            <select 
-                              value={currentAnswer || ""}
-                              onChange={(e) => handleAnswerChange(qr.questionNumber, e.target.value)}
-                              className="border rounded p-1 text-sm"
-                            >
-                              <option value="">None</option>
-                              <option value="A">A</option>
-                              <option value="B">B</option>
-                              <option value="C">C</option>
-                              <option value="D">D</option>
-                            </select>
-                          </td>
-                          <td className="px-3 py-2 whitespace-nowrap text-sm">
-                            {currentAnswer ? (
-                              isCorrectNow ? (
-                                <span className="text-green-600 flex items-center">
-                                  <Check size={14} className="mr-1" /> Correct
-                                </span>
-                              ) : (
-                                <span className="text-red-600">
-                                  Incorrect (✓ {qr.correctAnswer})
-                                </span>
-                              )
-                            ) : (
-                              <span className="text-gray-400">Not answered</span>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            
-            <div className="p-4 border-t flex justify-end space-x-2">
-              <Button
-                variant="outline"
-                onClick={cancelManualCorrections}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={saveManualCorrections}
-              >
-                Save Corrections
-              </Button>
-            </div>
+            ))}
           </div>
         </div>
       )}
-
-      {/* Results Section */}
-      {finalResults.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="mt-8"
-        >
-          <Card>
-            <CardHeader>
-              <h2 className="text-lg font-medium">Test Results Summary</h2>
-            </CardHeader>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Roll Number</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {finalResults.map((result, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{result.student.name}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-500">{result.student.roll}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{result.score}/{result.totalQuestions}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className={`text-sm font-medium ${
-                          result.percentage >= 70 ? 'text-green-600' : 
-                          result.percentage >= 40 ? 'text-yellow-600' : 
-                          'text-red-600'
-                        }`}>
-                          {result.percentage}%
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleManualCorrection(result)}
-                          >
-                            Edit Answers
-                          </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => navigate(`/students/${result.student.id}/analytics`)}
-                        >
-                          View Analytics
-                        </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
-        </motion.div>
+      
+      {/* Save Results Button */}
+      {scanResults.length > 0 && (
+        <div className="mt-6 flex justify-end">
+          <Button
+            leftIcon={<Save size={16} />}
+            className="bg-green-600 hover:bg-green-700 text-white"
+            onClick={saveResults}
+            isLoading={savingResults}
+            disabled={savingResults}
+          >
+            Save Results
+          </Button>
+        </div>
+      )}
+      
+      {/* Debug Output */}
+      {debugMode && processingErrors.length > 0 && (
+        <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-md">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="text-gray-800 font-medium">Debug Output</h3>
+            <button 
+              onClick={() => setProcessingErrors([])}
+              className="text-xs px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-gray-700"
+            >
+              Clear Logs
+            </button>
+          </div>
+          <div className="bg-gray-900 text-green-400 p-3 rounded-md overflow-x-auto font-mono text-xs">
+            <pre className="whitespace-pre-wrap">
+              {processingErrors.map((error, i) => (
+                <div key={i} className="pb-1">
+                  <span className="text-gray-500">[{new Date(error.timestamp).toLocaleTimeString()}]</span> {error.errorMessage}
+                </div>
+              ))}
+            </pre>
+          </div>
+        </div>
       )}
     </Layout>
   );

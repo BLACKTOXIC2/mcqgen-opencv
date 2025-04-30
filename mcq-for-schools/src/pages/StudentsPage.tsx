@@ -520,9 +520,9 @@ export default function StudentsPage() {
   const renderImportModal = () => (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="border-b px-6 py-4 flex justify-between items-center">
-          <h3 className="text-xl font-semibold text-gray-900 flex items-center">
-            <Upload size={20} className="text-primary-500 mr-2" />
+        <div className="border-b px-6 py-4 flex justify-between items-center bg-gradient-to-r from-purple-50 to-indigo-50">
+          <h3 className="text-xl font-semibold text-purple-700 flex items-center">
+            <Upload size={20} className="text-purple-500 mr-2" />
             {isProcessingCsv ? "Processing Import" : "Import Students with AI"}
           </h3>
           <button 
@@ -536,19 +536,19 @@ export default function StudentsPage() {
         <div className="p-6">
           {importErrors.length > 0 ? (
             <div className="space-y-6">
-              <div className="bg-primary-50 p-5 rounded-lg border border-primary-100 flex items-start">
+              <div className="bg-purple-50 p-5 rounded-lg border border-purple-100 flex items-start">
                 <div className="flex-shrink-0 mr-3">
-                  <svg className="h-6 w-6 text-primary-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-6 w-6 text-purple-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
                 <div>
-                  <h4 className="text-primary-800 font-medium">Import Status</h4>
-                  <div className="mt-2 text-primary-700 text-sm">
+                  <h4 className="text-purple-800 font-medium">Import Status</h4>
+                  <div className="mt-2 text-purple-700 text-sm">
                     {parsedStudents.length > 0 ? (
                       <div className="grid grid-cols-2 gap-4">
                         <div className="bg-white rounded-lg p-3 border border-gray-200 text-center">
-                          <div className="text-2xl font-bold text-primary-600">{parsedStudents.length}</div>
+                          <div className="text-2xl font-bold text-purple-600">{parsedStudents.length}</div>
                           <div className="text-xs text-gray-500 uppercase tracking-wide mt-1">Processed</div>
                         </div>
                         <div className="bg-white rounded-lg p-3 border border-gray-200 text-center">
@@ -579,7 +579,7 @@ export default function StudentsPage() {
               <div className="flex gap-3 mt-2">
                 <Button 
                   variant="outline" 
-                  className="w-full"
+                  className="w-full border-purple-200 text-purple-700 hover:bg-purple-50"
                   onClick={closeImportModal}
                 >
                   Close
@@ -607,10 +607,10 @@ export default function StudentsPage() {
               
               <div className="border rounded-md overflow-hidden mb-4">
                 <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-purple-50">
                     <tr>
                       {previewData.columns.map((col, idx) => (
-                        <th key={idx} scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th key={idx} scope="col" className="px-6 py-3 text-left text-xs font-medium text-purple-600 uppercase tracking-wider">
                           {col}
                         </th>
                       ))}
@@ -618,7 +618,7 @@ export default function StudentsPage() {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {previewData.rows.slice(0, 5).map((row, idx) => (
-                      <tr key={idx}>
+                      <tr key={idx} className="hover:bg-purple-50">
                         {row.map((cell, cellIdx) => (
                           <td key={cellIdx} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {cell}
@@ -640,13 +640,13 @@ export default function StudentsPage() {
               <div className="flex gap-3">
                 <Button 
                   variant="outline" 
-                  className="w-1/2"
+                  className="w-1/2 border-purple-200 text-purple-700 hover:bg-purple-50"
                   onClick={closeImportModal}
                 >
                   Cancel
                 </Button>
                 <Button 
-                  className="w-1/2"
+                  className="w-1/2 bg-purple-600 hover:bg-purple-700 text-white"
                   onClick={handleImportCSV}
                   disabled={isProcessingCsv}
                 >
@@ -664,8 +664,8 @@ export default function StudentsPage() {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-12">
-              <div className="mb-4 bg-primary-50 p-4 rounded-full">
-                <Upload size={32} className="text-primary-500" />
+              <div className="mb-4 bg-purple-50 p-4 rounded-full">
+                <Upload size={32} className="text-purple-500" />
               </div>
               <h4 className="text-lg font-medium text-gray-900 mb-2">Upload your student data</h4>
               <p className="text-gray-500 text-center mb-6 max-w-md">
@@ -673,7 +673,7 @@ export default function StudentsPage() {
               </p>
               
               <div className="w-full max-w-md">
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center">
+                <div className="border-2 border-dashed border-purple-200 rounded-lg p-6 flex flex-col items-center">
                   <input
                     type="file"
                     ref={fileInputRef}
@@ -684,7 +684,7 @@ export default function StudentsPage() {
                   />
                   <label
                     htmlFor="file-upload"
-                    className="cursor-pointer bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
+                    className="cursor-pointer bg-white py-2 px-4 border border-purple-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-purple-50 focus:outline-none"
                   >
                     Select CSV File
                   </label>
@@ -694,11 +694,11 @@ export default function StudentsPage() {
                 </div>
                 
                 <div className="mt-4 border rounded-md overflow-hidden">
-                  <div className="bg-gray-50 px-4 py-2 border-b">
-                    <p className="text-xs font-medium text-gray-500">SAMPLE FORMAT</p>
+                  <div className="bg-purple-50 px-4 py-2 border-b">
+                    <p className="text-xs font-medium text-purple-600">SAMPLE FORMAT</p>
                   </div>
                   <div className="p-3">
-                    <div className="grid grid-cols-3 gap-2 text-xs font-mono bg-gray-100 p-2 rounded mb-2">
+                    <div className="grid grid-cols-3 gap-2 text-xs font-mono bg-purple-100 p-2 rounded mb-2">
                       <div>Name</div>
                       <div>Roll</div>
                       <div>Class</div>
@@ -709,12 +709,12 @@ export default function StudentsPage() {
                       <div>Grade 7</div>
                     </div>
                   </div>
-                  <div className="bg-gray-50 px-4 py-2 border-t flex justify-between items-center">
+                  <div className="bg-purple-50 px-4 py-2 border-t flex justify-between items-center">
                     <div className="text-xs font-mono text-gray-500">sample-students.csv</div>
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="text-xs"
+                      className="text-xs text-purple-600 hover:bg-purple-100"
                       onClick={() => {
                         const sampleData = 'Name,Roll,Class\nJohn Doe,101,Grade 7\nJane Smith,102,Grade 7';
                         const blob = new Blob([sampleData], { type: 'text/csv' });
@@ -755,7 +755,7 @@ export default function StudentsPage() {
                 onClick={() => setIsImportModalOpen(true)}
                 size="md"
                 variant="outline"
-                className="transition-all hover:scale-105"
+                className="transition-all hover:scale-105 border-purple-200 text-purple-700 hover:bg-purple-50"
               >
                 Import with AI
               </Button>
@@ -763,7 +763,7 @@ export default function StudentsPage() {
                 leftIcon={<Plus size={16} />}
                 onClick={() => setIsAdding(true)}
                 size="md"
-                className="transition-all hover:scale-105"
+                className="transition-all hover:scale-105 bg-purple-600 hover:bg-purple-700 text-white"
               >
                 Add Student
               </Button>
@@ -783,9 +783,9 @@ export default function StudentsPage() {
             exit={{ opacity: 0, y: -20 }}
             className="mb-8"
           >
-            <Card className="border-2 border-primary-100">
-              <CardHeader className="bg-primary-50">
-                <h3 className="text-xl font-semibold text-primary-700">
+            <Card className="border-2 border-purple-100">
+              <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50">
+                <h3 className="text-xl font-semibold text-purple-700">
                   {isEditing ? 'Edit Student Details' : 'Add New Student'}
                 </h3>
               </CardHeader>
@@ -799,7 +799,7 @@ export default function StudentsPage() {
                         onChange={(e) => setName(e.target.value)}
                         placeholder="e.g. John Doe"
                         required
-                        icon={<UserRound size={18} className="text-gray-500" />}
+                        icon={<UserRound size={18} className="text-purple-500" />}
                       />
                       <p className="text-xs text-gray-500 pl-1">Full name of the student</p>
                     </div>
@@ -810,7 +810,7 @@ export default function StudentsPage() {
                         onChange={(e) => setRoll(e.target.value)}
                         placeholder="e.g. 101"
                         required
-                        icon={<Hash size={18} className="text-gray-500" />}
+                        icon={<Hash size={18} className="text-purple-500" />}
                       />
                       <p className="text-xs text-gray-500 pl-1">Unique identifier for the student</p>
                     </div>
@@ -846,6 +846,7 @@ export default function StudentsPage() {
                       type="button" 
                       variant="outline" 
                       onClick={resetForm}
+                      className="border-purple-200 text-purple-700 hover:bg-purple-50"
                     >
                       Cancel
                     </Button>
@@ -853,6 +854,7 @@ export default function StudentsPage() {
                       type="submit" 
                       disabled={classes.length === 0}
                       rightIcon={isEditing ? <Pencil size={16} /> : <Plus size={16} />}
+                      className="bg-purple-600 hover:bg-purple-700 text-white"
                     >
                       {isEditing ? 'Update Student' : 'Create Student'}
                     </Button>
@@ -867,7 +869,7 @@ export default function StudentsPage() {
       {/* Class Filter */}
       <div className="mb-6">
         <div className="flex items-center">
-          <Filter size={16} className="mr-2 text-gray-500" />
+          <Filter size={16} className="mr-2 text-purple-500" />
           <h3 className="text-sm font-medium text-gray-700">Filter by Class</h3>
         </div>
         <div className="mt-2">
@@ -884,8 +886,8 @@ export default function StudentsPage() {
       
       {loading ? (
         <div className="flex flex-col justify-center items-center h-64 space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
-          <p className="text-primary-600 font-medium">Loading your students...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
+          <p className="text-purple-700 font-medium">Loading your students...</p>
         </div>
       ) : (
         <AnimatePresence>
@@ -897,18 +899,18 @@ export default function StudentsPage() {
             {students.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-purple-50">
                     <tr>
-                      <th scope="col" className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-6 py-4 text-left text-xs font-medium text-purple-600 uppercase tracking-wider">
                         Student Name
                       </th>
-                      <th scope="col" className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-6 py-4 text-left text-xs font-medium text-purple-600 uppercase tracking-wider">
                         Roll Number
                       </th>
-                      <th scope="col" className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-6 py-4 text-left text-xs font-medium text-purple-600 uppercase tracking-wider">
                         Class
                       </th>
-                      <th scope="col" className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-6 py-4 text-right text-xs font-medium text-purple-600 uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
@@ -923,23 +925,23 @@ export default function StudentsPage() {
                           y: 0,
                           transition: { delay: index * 0.05 }
                         }}
-                        className="hover:bg-gray-50 transition-colors"
+                        className="hover:bg-purple-50 transition-colors"
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <UserRound size={18} className="text-primary-500 mr-2" />
+                            <UserRound size={18} className="text-purple-500 mr-2" />
                             <div className="text-sm font-medium text-gray-900">{student.name}</div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <Hash size={18} className="text-gray-400 mr-2" />
+                            <Hash size={18} className="text-purple-400 mr-2" />
                             <div className="text-sm text-gray-700">{student.roll}</div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <BookOpen size={18} className="text-gray-400 mr-2" />
+                            <BookOpen size={18} className="text-purple-400 mr-2" />
                             <div className="text-sm text-gray-700">
                               {(student as any).classes ? 
                                 `${(student as any).classes.name} - Section ${(student as any).classes.section}` : 
@@ -951,7 +953,7 @@ export default function StudentsPage() {
                           <div className="action-menu-container inline-block relative">
                             <button
                               onClick={(e) => toggleMenu(student.id, e)}
-                              className="p-2 rounded-full hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                              className="p-2 rounded-full hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors"
                               aria-label="Menu"
                               aria-haspopup="true"
                               aria-expanded={openMenuId === student.id}
@@ -967,8 +969,8 @@ export default function StudentsPage() {
               </div>
             ) : (
               <div className="py-12 px-6 text-center">
-                <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                  <UserRound size={32} className="text-gray-400" />
+                <div className="mx-auto w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+                  <UserRound size={32} className="text-purple-500" />
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No students added yet</h3>
                 <p className="text-gray-500 mb-6 max-w-md mx-auto">
@@ -982,7 +984,7 @@ export default function StudentsPage() {
                     onClick={() => setIsAdding(true)}
                     disabled={classes.length === 0}
                     size="lg"
-                    className="transition-all hover:scale-105"
+                    className="transition-all hover:scale-105 bg-purple-600 hover:bg-purple-700 text-white"
                   >
                     {classes.length > 0 ? 'Add Your First Student' : 'Please Add a Class First'}
                   </Button>
@@ -1019,11 +1021,11 @@ export default function StudentsPage() {
                   handleViewAnalytics(student.id);
                 }
               }}
-              className="w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 flex items-center transition-colors"
+              className="w-full px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 flex items-center transition-colors"
               role="menuitem"
               autoFocus
             >
-              <BarChart2 size={16} className="mr-3 text-primary-500" />
+              <BarChart2 size={16} className="mr-3 text-purple-500" />
               View Analytics
             </button>
             <button
@@ -1036,10 +1038,10 @@ export default function StudentsPage() {
                 }
                 setOpenMenuId(null);
               }}
-              className="w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 flex items-center transition-colors"
+              className="w-full px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 flex items-center transition-colors"
               role="menuitem"
             >
-              <Pencil size={16} className="mr-3 text-blue-500" />
+              <Pencil size={16} className="mr-3 text-indigo-500" />
               Edit Student
             </button>
             <button
