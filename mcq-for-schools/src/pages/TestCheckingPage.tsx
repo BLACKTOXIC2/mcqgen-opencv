@@ -69,9 +69,13 @@ const CameraModal = ({
   const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait');
   const [deviceOrientation, setDeviceOrientation] = useState<'portrait' | 'landscape'>('portrait');
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
+  const [flashlightOn, setFlashlightOn] = useState<boolean>(false);
+  const [hasFlashlight, setHasFlashlight] = useState<boolean>(false);
+  const [viewfinderBounds, setViewfinderBounds] = useState<DOMRect | null>(null);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const viewfinderRef = useRef<HTMLDivElement>(null);
   
   // Start camera when modal opens
   useEffect(() => {
@@ -106,6 +110,14 @@ const CameraModal = ({
       startCamera();
     }
   }, [facingMode, isOpen, capturedImage]);
+
+  // Update viewfinder bounds when orientation changes
+  useEffect(() => {
+    if (viewfinderRef.current) {
+      const bounds = viewfinderRef.current.getBoundingClientRect();
+      setViewfinderBounds(bounds);
+    }
+  }, [orientation, deviceOrientation]);
   
   const startCamera = async () => {
     try {
@@ -140,18 +152,66 @@ const CameraModal = ({
           adjustVideoOrientation();
         };
       }
+
+      // Check for flashlight support
+      try {
+        const track = mediaStream.getVideoTracks()[0];
+        const capabilities = track.getCapabilities();
+        setHasFlashlight(capabilities.torch === true);
+        
+        // Reset flashlight state when changing cameras
+        setFlashlightOn(false);
+      } catch (e) {
+        console.log('Flashlight detection failed:', e);
+        setHasFlashlight(false);
+      }
     } catch (err) {
       console.error('Error accessing camera:', err);
       setError('Could not access the camera. Please check permissions and try again.');
     }
   };
+
+  const toggleFlashlight = async () => {
+    if (!stream) return;
+    
+    try {
+      const track = stream.getVideoTracks()[0];
+      if (!track) return;
+
+      const newFlashlightState = !flashlightOn;
+
+      await track.applyConstraints({
+        advanced: [{ torch: newFlashlightState }]
+      });
+      
+      setFlashlightOn(newFlashlightState);
+    } catch (err) {
+      console.error('Error toggling flashlight:', err);
+      setError('Could not control flashlight. This feature may not be supported on your device.');
+    }
+  };
   
   const stopCamera = () => {
     if (stream) {
+      // Turn off flashlight if it's on
+      if (flashlightOn) {
+        try {
+          const track = stream.getVideoTracks()[0];
+          if (track) {
+            track.applyConstraints({
+              advanced: [{ torch: false }]
+            });
+          }
+        } catch (e) {
+          console.log('Error turning off flashlight:', e);
+        }
+      }
+      
       stream.getTracks().forEach(track => {
         track.stop();
       });
       setStream(null);
+      setFlashlightOn(false);
     }
     
     if (videoRef.current) {
@@ -177,6 +237,12 @@ const CameraModal = ({
     } else {
       setOrientation('landscape');
     }
+    
+    // Update viewfinder bounds
+    if (viewfinderRef.current) {
+      const bounds = viewfinderRef.current.getBoundingClientRect();
+      setViewfinderBounds(bounds);
+    }
   };
   
   const toggleOrientation = () => {
@@ -184,7 +250,7 @@ const CameraModal = ({
   };
   
   const takePhoto = () => {
-    if (!videoRef.current || !canvasRef.current) return;
+    if (!videoRef.current || !canvasRef.current || !viewfinderBounds) return;
     
     const video = videoRef.current;
     const canvas = canvasRef.current;
@@ -193,22 +259,45 @@ const CameraModal = ({
     const videoWidth = video.videoWidth;
     const videoHeight = video.videoHeight;
     
-    // Match canvas to video aspect ratio
+    // Calculate aspect ratio of the viewfinder
+    const viewfinderAspectRatio = viewfinderBounds.width / viewfinderBounds.height;
+    
+    // Calculate the area of the video to capture (crop to viewfinder area)
+    let sourceX = 0;
+    let sourceY = 0;
+    let sourceWidth = videoWidth;
+    let sourceHeight = videoHeight;
+    
+    // Adjust for orientation
     if (orientation === 'portrait') {
-      canvas.width = videoWidth;
-      canvas.height = videoHeight;
-    } else {
-      // For landscape, maintain aspect ratio but possibly swap dimensions
-      if (videoWidth > videoHeight) {
-        // Video is naturally landscape
-        canvas.width = videoWidth;
-        canvas.height = videoHeight;
+      // For portrait mode, crop to match viewfinder aspect ratio
+      if (videoWidth / videoHeight > viewfinderAspectRatio) {
+        // Video is wider than viewfinder
+        sourceWidth = videoHeight * viewfinderAspectRatio;
+        sourceX = (videoWidth - sourceWidth) / 2;
       } else {
-        // Video is portrait but we're in landscape mode
-        canvas.width = videoHeight;
-        canvas.height = videoWidth;
+        // Video is taller than viewfinder
+        sourceHeight = videoWidth / viewfinderAspectRatio;
+        sourceY = (videoHeight - sourceHeight) / 2;
+      }
+    } else {
+      // For landscape mode, crop to match viewfinder aspect ratio
+      const landscapeAspectRatio = 1 / viewfinderAspectRatio;
+      
+      if (videoWidth / videoHeight < landscapeAspectRatio) {
+        // Video is narrower than viewfinder
+        sourceHeight = videoWidth / landscapeAspectRatio;
+        sourceY = (videoHeight - sourceHeight) / 2;
+      } else {
+        // Video is wider than viewfinder
+        sourceWidth = videoHeight * landscapeAspectRatio;
+        sourceX = (videoWidth - sourceWidth) / 2;
       }
     }
+    
+    // Set canvas dimensions to match the cropped area
+    canvas.width = sourceWidth;
+    canvas.height = sourceHeight;
     
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -216,22 +305,12 @@ const CameraModal = ({
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    if (orientation === 'portrait') {
-      // Draw video directly for portrait mode
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    } else {
-      if (videoWidth > videoHeight) {
-        // Naturally landscape video
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      } else {
-        // Portrait video in landscape mode - rotate
-        ctx.save();
-        ctx.translate(canvas.width / 2, canvas.height / 2);
-        ctx.rotate(Math.PI / 2); // 90 degrees
-        ctx.drawImage(video, -videoWidth / 2, -videoHeight / 2, videoWidth, videoHeight);
-        ctx.restore();
-      }
-    }
+    // Draw the cropped portion of the video
+    ctx.drawImage(
+      video, 
+      sourceX, sourceY, sourceWidth, sourceHeight, // Source rectangle
+      0, 0, canvas.width, canvas.height            // Destination rectangle
+    );
     
     // Apply image processing to enhance readability if needed
     
@@ -280,6 +359,13 @@ const CameraModal = ({
     bg-white rounded-lg shadow-xl overflow-hidden
     flex flex-col
   `;
+
+  const viewfinderClasses = `
+    absolute inset-0 pointer-events-none border-2 border-dashed border-purple-300
+    ${orientation === 'portrait' ? 'aspect-[3/4] m-auto' : 'aspect-[4/3] m-auto'}
+    w-[calc(100%-32px)] h-[calc(100%-32px)]
+    flex items-center justify-center
+  `;
   
   return (
     <>
@@ -306,7 +392,20 @@ const CameraModal = ({
                       muted
                       className={`object-cover w-full h-full ${orientation === 'landscape' ? 'transform' : ''}`}
                     />
-                    <div className="absolute inset-0 pointer-events-none border-2 border-dashed border-purple-300"></div>
+                    {/* Viewfinder overlay with crop guides */}
+                    <div ref={viewfinderRef} className={viewfinderClasses}>
+                      {/* Corner markers */}
+                      <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-white opacity-80"></div>
+                      <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-white opacity-80"></div>
+                      <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-white opacity-80"></div>
+                      <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-white opacity-80"></div>
+                      
+                      {/* Center cross */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-6 h-0.5 bg-white opacity-60"></div>
+                        <div className="h-6 w-0.5 bg-white opacity-60"></div>
+                      </div>
+                    </div>
                     
                     {/* Loading indicator */}
                     {!stream && (
@@ -371,6 +470,28 @@ const CameraModal = ({
               {/* Camera options */}
               {!capturedImage && stream && (
                 <div className="absolute bottom-4 right-4 space-y-2 flex flex-col items-end">
+                  {hasFlashlight && (
+                    <button
+                      onClick={toggleFlashlight}
+                      className={`p-3 text-white ${flashlightOn ? 'bg-yellow-500' : 'bg-purple-600'} rounded-full hover:${flashlightOn ? 'bg-yellow-600' : 'bg-purple-700'} shadow-md`}
+                      title={flashlightOn ? "Turn off flashlight" : "Turn on flashlight"}
+                    >
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        width="20" 
+                        height="20" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
+                      >
+                        <path d="M9 9V3h6v6l-3 3zM6 12h12M9 21h6"/>
+                      </svg>
+                    </button>
+                  )}
+                  
                   <button
                     onClick={switchCamera}
                     className="p-3 text-white bg-purple-600 rounded-full hover:bg-purple-700 shadow-md"
@@ -378,6 +499,7 @@ const CameraModal = ({
                   >
                     <RefreshCcw size={20} />
                   </button>
+                  
                   <button
                     onClick={toggleOrientation}
                     className="p-3 text-white bg-purple-600 rounded-full hover:bg-purple-700 shadow-md"
@@ -1330,14 +1452,32 @@ Are you sure you want to save these results?`;
         )}
         
         <div className="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-md">
-          <h3 className="text-purple-800 font-medium">ℹ️ Integration Information</h3>
-          <p className="text-sm text-purple-700 mt-1">
-            This application is now connected to the OpenCV OMR processing system. Images are sent directly 
-            to the OpenCV API running at {import.meta.env.VITE_OPENCV_API_URL || 'https://api.mcqgen.xyz'}.
-            Make sure the OpenCV server is running before scanning answer sheets.
-          </p>
-          <p className="text-sm text-purple-700 mt-2">
-            <strong>Note:</strong> You may need to adjust CORS settings on the OpenCV server if you encounter connection issues.
+          <h3 className="text-purple-800 font-medium">📋 How to Scan Answer Sheets</h3>
+          <ol className="mt-2 ml-4 text-sm text-purple-700 list-decimal space-y-2">
+            <li>
+              <strong>Select an MCQ test</strong> from the dropdown menu below
+            </li>
+            <li>
+              <strong>Upload images</strong> of student answer sheets using one of these methods:
+              <ul className="ml-4 mt-1 list-disc text-xs">
+                <li>Click "Add Images" to upload from your device</li>
+                <li>Click "Use Camera" to capture using your device camera</li>
+                <li>When using camera, align the sheet within the viewfinder for best results</li>
+                <li>Use the flashlight button if scanning in low light conditions</li>
+              </ul>
+            </li>
+            <li>
+              <strong>Process the images</strong> by clicking "Scan Answer Sheets"
+            </li>
+            <li>
+              <strong>Review results</strong> and make any needed student assignment corrections
+            </li>
+            <li>
+              <strong>Save the results</strong> to store them in the database
+            </li>
+          </ol>
+          <p className="text-xs text-purple-600 mt-3">
+            <strong>Note:</strong> For best accuracy, ensure good lighting and that the answer sheet is flat and clearly visible.
           </p>
         </div>
       </div>
@@ -1522,8 +1662,7 @@ Are you sure you want to save these results?`;
                                 aria-label="Reassign student"
                                 options={students.map(student => ({
                                   value: student.id,
-                                  label: `${student.name} (Roll: ${student.roll})`
-                                }))}
+                                  label: `${student.name} (Roll: ${student.roll})`                                }))}
                               />
                             </div>
                             <p className="text-xs text-gray-600">Roll: {result.student.roll}</p>
