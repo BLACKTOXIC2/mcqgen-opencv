@@ -276,17 +276,18 @@ export default function McqsPage() {
               align-items: center;
               color: #E32636;
             }
-            .circle { 
-              width: 20px; 
-              height: 20px; 
-              border-radius: 50%; 
-              border: 1px solid #E32636; 
-              margin-right: 3px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 9pt;
+            .circle {
+              display: inline-block;
+              width: 20px;
+              height: 20px;
+              border-radius: 50%;
+              border: 1px solid #E32636;
             }
+            .option-letter {
+              margin-right: 5px;
+              font-weight: bold;
+            }
+            
             
             @media print {
               body { font-size: 10pt; }
@@ -326,16 +327,20 @@ export default function McqsPage() {
                     <p><strong>${qIndex + 1}.</strong>
                     <span class="options">
                       <span class="option">
-                        <span class="circle">A</span>
+                        <span class="option-letter">A</span>
+                        <span class="circle"></span>
                       </span>
                       <span class="option">
-                        <span class="circle">B</span>
+                        <span class="option-letter">B</span>
+                        <span class="circle"></span>
                       </span>
                       <span class="option">
-                        <span class="circle">C</span>
+                        <span class="option-letter">C</span>
+                        <span class="circle"></span>
                       </span>
                       <span class="option">
-                        <span class="circle">D</span>
+                        <span class="option-letter">D</span>
+                        <span class="circle"></span>
                       </span>
                     </span></p>
                   </div>
@@ -676,20 +681,27 @@ export default function McqsPage() {
                               <p className="font-medium text-red-600">
                                 {index + 1}.
                                 <span className="inline-flex ml-1">
-                                  <span className="inline-flex items-center mr-2">
-                                    <span className="w-5 h-5 rounded-full border border-red-600 mr-1 flex items-center justify-center text-xs"><span className="text-red-600">A</span></span>
+                                  <span className="inline-flex flex-row items-center mr-2">
+                                    <span className="text-red-600 mr-1">A</span>
+                                    <span className="w-5 h-5 rounded-full border border-red-600 flex items-center justify-center"></span>
                                   </span>
-                                  <span className="inline-flex items-center mr-2">
-                                    <span className="w-5 h-5 rounded-full border border-red-600 mr-1 flex items-center justify-center text-xs"><span className="text-red-600">B</span></span>
+                                  <span className="inline-flex flex-row items-center mr-2">
+                                    <span className="text-red-600 mr-1">B</span>
+                                    <span className="w-5 h-5 rounded-full border border-red-600 flex items-center justify-center"></span>
                                   </span>
-                                  <span className="inline-flex items-center mr-2">
-                                    <span className="w-5 h-5 rounded-full border border-red-600 mr-1 flex items-center justify-center text-xs"><span className="text-red-600">C</span></span>
+                                  <span className="inline-flex flex-row items-center mr-2">
+                                    <span className="text-red-600 mr-1">C</span>
+                                    <span className="w-5 h-5 rounded-full border border-red-600 flex items-center justify-center"></span>
                                   </span>
-                                  <span className="inline-flex items-center">
-                                    <span className="w-5 h-5 rounded-full border border-red-600 mr-1 flex items-center justify-center text-xs"><span className="text-red-600">D</span></span>
+                                  <span className="inline-flex flex-row items-center">
+                                    <span className="text-red-600 mr-1">D</span>
+                                    <span className="w-5 h-5 rounded-full border border-red-600 flex items-center justify-center"></span>
                                   </span>
                                 </span>
                               </p>
+                              {index < testPreviewData.mcq.questions.length - 1 &&
+                               <hr className="border-t border-red-600 opacity-30 my-1" />
+                              }
                             </div>
                           ))}
                           
