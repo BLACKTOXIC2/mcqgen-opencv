@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BarChart, Brain, Sparkles, Clock, CheckCircle, ChevronRight, Menu, X, User, LogOut } from 'lucide-react';
+import { BarChart, Brain, Sparkles, Clock, CheckCircle, ChevronRight, Menu, X, User, LogOut, FileText, Video, PenTool, Camera, Scan } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function HomePage() {
@@ -24,19 +24,19 @@ export default function HomePage() {
   // Testimonials data
   const testimonials = [
     {
-      text: "MCQGen has saved me countless hours of work. The AI generates questions that are relevant and challenging for my students. I've seen a 30% improvement in engagement!",
+      text: "MCQGen has saved me countless hours of work. I can now create custom MCQs and scan completed answer sheets without manual grading. The accuracy is remarkable!",
       name: "Dr. Sarah Johnson",
       title: "Biology Professor",
       initials: "SJ"
     },
     {
-      text: "The performance tracking feature has given me unprecedented insights into my students' learning patterns. I can now immediately identify knowledge gaps and address them.",
+      text: "The automated scanning system has transformed our assessment workflow. I can scan and grade 30 test papers in minutes instead of hours, and students get their results faster.",
       name: "Michael Chen",
       title: "Computer Science Teacher",
       initials: "MC"
     },
     {
-      text: "We've implemented MCQGen across our entire school district with amazing results. Student assessment has never been more efficient and effective.",
+      text: "We've implemented MCQGen across our entire school district. Teachers create MCQs, distribute tests, and scan results - all in one platform. Our assessment process has never been more efficient.",
       name: "Lisa Rodriguez",
       title: "Education Director",
       initials: "LR"
@@ -46,130 +46,79 @@ export default function HomePage() {
   // Features data
   const features = [
     {
-      icon: Sparkles,
-      title: "AI Question Generation",
-      description: "Generate high-quality MCQs from any source material with our advanced AI technology that adapts to your specific needs.",
-      link: "/features/ai-generation"
+      icon: FileText,
+      title: "AI-Powered MCQ Generator",
+      description: "Generate high-quality multiple-choice questions from any text material. Perfect for creating customized tests and assessments in minutes.",
+      link: "/mcq-generator",
+      color: "blue"
+    },
+    {
+      icon: Camera,
+      title: "Answer Sheet Scanner",
+      description: "Use your device camera to scan and automatically grade student answer sheets. Eliminate manual grading and reduce errors.",
+      link: "/test-checking",
+      color: "pink"
     },
     {
       icon: BarChart,
-      title: "Performance Analytics",
-      description: "Track student progress with detailed analytics and identify knowledge gaps to better focus your teaching efforts.",
-      link: "/features/analytics"
-    },
+      title: "Student Performance Analytics",
+      description: "Track individual and class performance with detailed analytics. Identify knowledge gaps and improve teaching strategies.",
+      link: "/analytics",
+      color: "green"
+    }
+  ];
+  
+  // AI features data
+  const aiFeatures = [
     {
-      icon: Clock,
-      title: "Instant Assessments",
-      description: "Create and distribute assessments instantly with customizable settings, saving you hours of preparation time.",
-      link: "/features/assessments"
+      icon: Brain,
+      title: "AI-Powered Accuracy",
+      description: "Our AI algorithms ensure each question is academically relevant with properly balanced answer choices and distractors."
     },
     {
       icon: CheckCircle,
-      title: "Smart Feedback",
-      description: "Provide automated, personalized feedback to students based on their assessment performance.",
-      link: "/features/feedback"
+      title: "Advanced OMR Scanning",
+      description: "Our camera-based OMR technology can accurately identify marked answers even in imperfect scanning conditions."
     },
     {
-      icon: Brain,
-      title: "Adaptive Learning",
-      description: "Our system adapts to student performance, focusing on areas where they need the most improvement.",
-      link: "/features/adaptive-learning"
+      icon: Clock,
+      title: "Lightning Fast Grading",
+      description: "Grade batches of answer sheets in seconds, with automatic scoring and result compilation for entire classes."
     },
     {
-      icon: ChevronRight,
-      title: "Seamless Integration",
-      description: "Easily integrate with your existing LMS and other educational tools with our robust API.",
-      link: "/features/integration"
+      icon: User,
+      title: "Student Management",
+      description: "Organize students by class and track their performance history across multiple assessments and terms."
+    },
+    {
+      icon: Scan,
+      title: "Versatile Scanning",
+      description: "Scan answer sheets with your phone camera or upload digital images for automated grading and analysis."
+    },
+    {
+      icon: Sparkles,
+      title: "Deep Performance Insights",
+      description: "Analyze class performance, question difficulty, and individual student progress to improve learning outcomes."
     }
   ];
   
-  // Process steps
-  const process = [
+  // Stats data
+  const stats = [
     {
-      title: "Input Content",
-      description: "Upload your text, select a topic, or provide a URL to source content. Our AI will analyze the material."
+      value: "98%",
+      label: "Scanning accuracy"
     },
     {
-      title: "Generate Questions",
-      description: "Our AI analyzes the content and generates relevant multiple-choice questions with correct answers and distractors."
+      value: "500+",
+      label: "Schools using MCQGen"
     },
     {
-      title: "Track Performance",
-      description: "Distribute assessments to students and track their performance with our comprehensive analytics dashboard."
-    }
-  ];
-  
-  // Pricing plans
-  const plans = [
-    {
-      name: "Basic",
-      description: "For individual use",
-      price: "$0",
-      features: [
-        "50 AI-generated questions/month",
-        "Basic performance reporting",
-        "1 user account",
-        "Email support",
-        "Export to PDF"
-      ],
-      buttonText: "Get Started",
-      buttonLink: "/register",
-      popular: false
+      value: "50K+",
+      label: "Tests scanned monthly"
     },
     {
-      name: "Pro",
-      description: "For serious educators",
-      price: "$29",
-      features: [
-        "Unlimited AI-generated questions",
-        "Advanced analytics dashboard",
-        "5 user accounts",
-        "Priority support",
-        "Custom question templates",
-        "Integrations with popular LMS",
-        "CSV/Excel exports"
-      ],
-      buttonText: "Start Free Trial",
-      buttonLink: "/register",
-      popular: true
-    },
-    {
-      name: "Enterprise",
-      description: "For educational organizations",
-      price: "Custom",
-      features: [
-        "Unlimited AI-generated questions",
-        "Advanced analytics with insights",
-        "Unlimited user accounts",
-        "Dedicated support manager",
-        "API access",
-        "Custom branding",
-        "SSO authentication",
-        "Advanced security features"
-      ],
-      buttonText: "Contact Sales",
-      buttonLink: "/contact",
-      popular: false
-    }
-  ];
-  
-  // FAQs data
-  const faqs = [
-    {
-      question: "Can I try before I buy?",
-      answer: "Yes! Our Basic plan is free forever, and we offer a 14-day free trial on our Pro plan with all features included."
-    },
-    {
-      question: "How accurate are the AI-generated questions?",
-      answer: "Our AI has been trained on thousands of educational materials and achieves a 98% accuracy rate for generating relevant and correctly formatted questions."
-    },
-    {
-      question: "Can I cancel my subscription anytime?",
-      answer: "Absolutely. You can cancel your subscription at any time with no questions asked. Your data will remain accessible until the end of your billing period."
-    },
-    {
-      question: "Do you offer discounts for educational institutions?",
-      answer: "Yes, we offer special pricing for schools, colleges, and educational institutions. Please contact our sales team for details."
+      value: "4.9/5",
+      label: "Teacher satisfaction"
     }
   ];
   
@@ -337,7 +286,7 @@ export default function HomePage() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative w-full pt-24 pb-20 overflow-hidden">
+        <section className="relative w-full pt-12 pb-16 overflow-hidden">
           {/* Background decorations */}
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
             <div className="absolute top-0 -left-[10%] w-[40%] h-[40%] bg-purple-100 rounded-full mix-blend-multiply filter blur-[80px] opacity-60"></div>
@@ -345,177 +294,78 @@ export default function HomePage() {
             <div className="absolute top-[20%] right-[25%] w-[15%] h-[30%] bg-pink-100 rounded-full mix-blend-multiply filter blur-[60px] opacity-60"></div>
           </div>
           
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col lg:flex-row items-center gap-12">
-              {/* Left content - Text */}
-              <motion.div 
-                className="flex-1 text-center lg:text-left"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                <div className="inline-flex items-center rounded-full border border-purple-200 bg-purple-50 px-3 py-1 text-sm font-medium text-purple-800 mb-6">
-                  <Sparkles className="mr-1 h-3.5 w-3.5" />
-                  <span>AI-Powered Education</span>
-                </div>
-                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6 bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 bg-clip-text text-transparent">
-                  Generate MCQs & Track Performance with AI
-                </h1>
-                <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto lg:mx-0">
-                  Create high-quality multiple-choice questions instantly and analyze student performance with our advanced AI technology.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Link
-                      to="/register"
-                      className="h-12 px-8 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg flex items-center justify-center shadow-lg shadow-purple-600/20 transition-all duration-300"
-                    >
-                      Get Started Free
-                    </Link>
-                  </motion.div>
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Link
-                      to="#how-it-works"
-                      className="h-12 px-8 border border-gray-200 hover:border-purple-300 hover:bg-purple-50 flex items-center justify-center rounded-lg font-medium transition-all duration-300"
-                    >
-                      See How it Works <ChevronRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </motion.div>
-                </div>
-                <div className="mt-12 hidden lg:flex items-center">
-                  <div className="flex -space-x-2 mr-4">
-                    {[1, 2, 3, 4].map((i) => (
-                      <div key={i} className="inline-block h-8 w-8 rounded-full ring-2 ring-white overflow-hidden bg-gradient-to-br from-purple-200 to-purple-300">
-                        <div className="h-full w-full object-cover flex items-center justify-center text-xs text-gray-600">
-                          {i}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    <span className="font-medium text-purple-600">500+</span> educators already using MCQGen
-                  </p>
-                </div>
-              </motion.div>
-              
-              {/* Right content - Image */}
-              <motion.div 
-                className="flex-1 relative"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                <div className="relative aspect-[4/3] overflow-hidden rounded-2xl shadow-2xl">
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 z-10"></div>
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-blue-500 opacity-50 blur rounded-2xl"></div>
-                  <img
-                    src="https://images.pexels.com/photos/4144179/pexels-photo-4144179.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-                    alt="MCQGen Dashboard Preview"
-                    className="absolute inset-0 h-full w-full object-cover rounded-2xl z-0"
-                  />
-                  {/* Floating elements */}
-                  <div className="absolute -right-6 -bottom-6 h-24 w-24 bg-gradient-to-br from-purple-600 to-violet-800 rounded-2xl shadow-xl z-20 flex items-center justify-center text-white font-bold">
-                    <div className="text-center">
-                      <Sparkles className="h-6 w-6 mx-auto mb-1" />
-                      <span>AI MCQ</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute top-1/2 -translate-y-1/2 -left-8 bg-white rounded-xl shadow-lg p-4 z-20">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center">
-                      <CheckCircle className="h-5 w-5 text-purple-600" />
-                    </div>
-                    <div className="text-left">
-                      <p className="text-sm font-medium">98% Accuracy</p>
-                      <p className="text-xs text-gray-500">Verified Questions</p>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-          </div>
-          
-          {/* Trust badges */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
-            <div className="flex flex-col items-center">
-              <p className="text-sm text-gray-400 mb-6">TRUSTED BY LEADING INSTITUTIONS</p>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 items-center justify-items-center opacity-50">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="h-8 w-36 bg-gray-200 rounded"></div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Stats Section */}
-        <section className="w-full py-12 bg-white border-y border-gray-100">
-          <div className="container px-4 md:px-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-              <div className="space-y-2">
-                <h3 className="text-2xl font-bold text-purple-600">
-                  10,000+
-                </h3>
-                <p className="text-sm text-gray-500">Questions</p>
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-2xl font-bold text-purple-600">
-                  5M+
-                </h3>
-                <p className="text-sm text-gray-500">Questions Answered</p>
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-2xl font-bold text-purple-600">
-                  98%
-                </h3>
-                <p className="text-sm text-gray-500">Accuracy Rate</p>
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-2xl font-bold text-purple-600">
-                  30%
-                </h3>
-                <p className="text-sm text-gray-500">Time Saved</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Features Section */}
-        <section id="features" className="w-full py-20 md:py-28 relative overflow-hidden">
-          {/* Background decorations */}
-          <div className="absolute inset-0 -z-10 overflow-hidden">
-            <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-50 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-50 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
-          </div>
-          
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <motion.div 
+              className="max-w-4xl mx-auto"
               initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
-              className="flex flex-col items-center text-center mb-16"
             >
-              <div className="inline-flex items-center rounded-full border border-purple-200 bg-purple-50 px-3 py-1 text-sm font-medium text-purple-800 mb-4">
+              <div className="inline-flex items-center rounded-full border border-purple-200 bg-purple-50 px-3 py-1 text-sm font-medium text-purple-800 mb-6">
                 <Sparkles className="mr-1 h-3.5 w-3.5" />
-                <span>Features</span>
+                <span>AI-Powered MCQ Platform for Schools</span>
               </div>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-700 to-indigo-600 bg-clip-text text-transparent">
-                Everything You Need
-              </h2>
-              <p className="mt-4 text-gray-600 max-w-2xl text-lg">
-                Our platform combines AI-powered question generation with comprehensive analytics to transform your assessment process.
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6">
+                Create & Grade <span className="text-blue-600">MCQ Tests</span> in Minutes
+              </h1>
+              <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+                Generate high-quality multiple-choice questions and automatically grade answer sheets using advanced AI technology designed specifically for educational assessment.
               </p>
+              
+              <div className="flex flex-wrap justify-center gap-3 mb-10">
+                <div className="bg-purple-50 px-4 py-2 rounded-full text-sm text-gray-700">
+                  <span className="font-bold text-purple-600">98%</span> Scanning Accuracy
+                </div>
+                <div className="bg-purple-50 px-4 py-2 rounded-full text-sm text-gray-700">
+                  <span className="font-bold text-purple-600">500+</span> Schools
+                </div>
+                <div className="bg-purple-50 px-4 py-2 rounded-full text-sm text-gray-700">
+                  <span className="font-bold text-purple-600">50K+</span> Tests Monthly
+                </div>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Link
+                    to="/register"
+                    className="h-12 px-8 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg flex items-center justify-center shadow-lg shadow-purple-600/20 transition-all duration-300"
+                  >
+                    Start Creating Tests
+                  </Link>
+                </motion.div>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Link
+                    to="#how-it-works"
+                    className="h-12 px-8 border border-gray-200 hover:border-purple-300 hover:bg-purple-50 flex items-center justify-center rounded-lg font-medium transition-all duration-300"
+                  >
+                    Watch Demo <ChevronRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </motion.div>
+              </div>
             </motion.div>
+          </div>
+        </section>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+        {/* Create Quiz Section */}
+        <section className="py-16 bg-gradient-to-b from-white to-purple-50/30">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="mb-16 text-center">
+              <div className="inline-flex items-center justify-center rounded-full bg-purple-100 p-1 px-3 mb-4">
+                <span className="text-sm font-medium text-purple-800">ALL-IN-ONE SOLUTION</span>
+              </div>
+              <h2 className="text-3xl font-bold mb-4">Complete Assessment Platform with <span className="text-purple-600">AI Power</span></h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                From creating questions to grading papers, our platform handles the entire assessment workflow so teachers can focus on teaching.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-8">
               {features.map((feature, index) => (
                 <motion.div
                   key={index}
@@ -523,491 +373,272 @@ export default function HomePage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  whileHover={{ y: -5, boxShadow: "0 20px 40px -15px rgba(0, 0, 0, 0.1)" }}
-                  className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 flex flex-col h-full"
+                  className="bg-white rounded-xl p-6 shadow-md border border-gray-100 hover:shadow-xl transition-all duration-300"
                 >
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500/10 to-indigo-500/10 flex items-center justify-center mb-6">
-                    <feature.icon className="h-7 w-7 text-purple-600" />
+                  <div className={`w-12 h-12 rounded-full mb-4 flex items-center justify-center 
+                    ${feature.color === "blue" ? "bg-blue-100 text-blue-600" : 
+                      feature.color === "pink" ? "bg-pink-100 text-pink-600" : 
+                      "bg-green-100 text-green-600"}`}
+                  >
+                    <feature.icon className="h-6 w-6" />
                   </div>
                   <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-                  <p className="text-gray-600 mb-6 flex-grow">{feature.description}</p>
-                  <Link to={feature.link} className="text-purple-600 hover:text-purple-700 font-medium flex items-center">
-                    Learn more <ChevronRight className="ml-1 h-4 w-4" />
+                  <p className="text-gray-600 mb-4 text-sm">{feature.description}</p>
+                  <Link 
+                    to={feature.link}
+                    className={`text-sm font-medium flex items-center 
+                      ${feature.color === "blue" ? "text-blue-600" : 
+                        feature.color === "pink" ? "text-pink-600" : 
+                        "text-green-600"}`}
+                  >
+                    Try Now <ChevronRight className="ml-1 h-4 w-4" />
                   </Link>
                 </motion.div>
               ))}
             </div>
-            
-            {/* Feature highlight */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              viewport={{ once: true }}
-              className="rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 p-8 shadow-xl text-white overflow-hidden relative"
-            >
-              <div className="absolute top-0 right-0 w-1/3 h-full opacity-20">
-                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                  <path fill="#FFFFFF" d="M42.8,-67.9C55.3,-61.2,65.3,-48.9,71.5,-34.8C77.8,-20.6,80.2,-4.6,77.2,9.8C74.2,24.2,65.7,37.1,54.3,46.3C42.9,55.6,28.5,61.2,14.1,65.3C-0.3,69.3,-14.8,71.8,-30.3,68.7C-45.9,65.7,-62.5,57,-71.3,43.1C-80.1,29.3,-81.1,10.3,-77.9,-6.7C-74.7,-23.7,-67.3,-38.5,-56.2,-48.5C-45.1,-58.5,-30.4,-63.6,-15.7,-69.7C-1,-75.7,13.7,-82.7,28.2,-80.1C42.8,-77.5,57.3,-65.3,42.8,-67.9Z" transform="translate(100 100)" />
-                </svg>
-              </div>
-              <div className="relative z-10 flex flex-col md:flex-row gap-8 items-center">
-                <div className="md:w-2/3">
-                  <h3 className="text-2xl font-bold mb-4">AI-powered question generation that adapts to your needs</h3>
-                  <p className="mb-6 text-white/80">
-                    Our advanced AI algorithms can generate questions from any source material, adapt to different difficulty levels, and provide instant feedback to students.
-                  </p>
-                  <Link to="/features" className="inline-flex items-center rounded-full bg-white text-purple-600 hover:text-purple-700 px-4 py-2 font-medium transition-colors">
-                    Explore all features <ChevronRight className="ml-1 h-4 w-4" />
-                  </Link>
-                </div>
-                <div className="md:w-1/3 flex justify-center">
-                  <div className="w-32 h-32 rounded-full bg-white/20 flex items-center justify-center">
-                    <Brain className="h-16 w-16 text-white" />
-                  </div>
-                </div>
-              </div>
-            </motion.div>
           </div>
         </section>
 
-        {/* How It Works Section */}
-        <section id="how-it-works" className="w-full py-20 md:py-28 bg-gray-50 relative overflow-hidden">
-          {/* Background decorations */}
-          <div className="absolute inset-0 -z-10 overflow-hidden">
-            <div className="absolute -top-40 -left-40 w-80 h-80 bg-purple-50 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
-            <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-indigo-50 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
-            <div className="absolute h-px w-full max-w-3xl bg-gradient-to-r from-transparent via-purple-300 to-transparent left-1/2 transform -translate-x-1/2 top-1/2 opacity-70"></div>
-          </div>
-          
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
-              className="flex flex-col items-center text-center mb-20"
-            >
-              <div className="inline-flex items-center rounded-full border border-purple-200 bg-purple-50 px-3 py-1 text-sm font-medium text-purple-800 mb-4">
-                <Sparkles className="mr-1 h-3.5 w-3.5" />
-                <span>Process</span>
-              </div>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-700 to-indigo-600 bg-clip-text text-transparent">
-                How MCQGen Works
-              </h2>
-              <p className="mt-4 text-gray-600 max-w-2xl text-lg">
-                Our simple three-step process makes creating and analyzing MCQs effortless
-              </p>
-            </motion.div>
-
-            <div className="relative max-w-5xl mx-auto">
-              <div className="hidden md:block absolute h-1 bg-gradient-to-r from-purple-400 to-indigo-400 top-24 left-[15%] right-[15%] rounded-full"></div>
-              <div className="grid md:grid-cols-3 gap-8 md:gap-6">
-                {process.map((step, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.2 }}
-                    viewport={{ once: true }}
-                    className="flex flex-col items-center md:items-start relative"
-                  >
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xl mb-12 relative z-10 shadow-lg shadow-purple-600/20">
-                      {index + 1}
-                    </div>
-                    
-                    <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 w-full md:mt-[-2rem] relative">
-                      <h3 className="text-xl font-bold mb-4">{step.title}</h3>
-                      <p className="text-gray-600">{step.description}</p>
-                    </div>
-                    
-                    {index < process.length - 1 && (
-                      <div className="hidden md:block absolute top-24 left-full transform -translate-x-1/2 translate-y-[-50%] rotate-[-30deg]">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="#a78bfa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </div>
-                    )}
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-            
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-              viewport={{ once: true }}
-              className="mt-20 bg-white rounded-2xl p-8 shadow-lg border border-gray-100 max-w-3xl mx-auto text-center"
-            >
-              <div className="inline-flex items-center justify-center rounded-full bg-purple-100 p-3 mb-6">
-                <Clock className="h-6 w-6 text-purple-600" />
-              </div>
-              <h3 className="text-2xl font-bold mb-4">Ready to save hours on assessment creation?</h3>
-              <p className="text-gray-600 mb-8">
-                Our users report saving an average of 5 hours per week on creating and grading assessments.
-              </p>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="inline-block"
-              >
-                <Link
-                  to="/register"
-                  className="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-lg shadow-purple-600/20 transition-all duration-300"
-                >
-                  Get Started Today
-                </Link>
-              </motion.div>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Pricing Section */}
-        <section id="pricing" className="w-full py-20 md:py-28 relative overflow-hidden">
-          {/* Background decorations */}
-          <div className="absolute inset-0 -z-10 overflow-hidden">
-            <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-50 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-50 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
-          </div>
-          
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
-              className="flex flex-col items-center text-center mb-20"
-            >
-              <div className="inline-flex items-center rounded-full border border-purple-200 bg-purple-50 px-3 py-1 text-sm font-medium text-purple-800 mb-4">
-                <Sparkles className="mr-1 h-3.5 w-3.5" />
-                <span>Pricing</span>
-              </div>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-700 to-indigo-600 bg-clip-text text-transparent">
-                Choose Your Plan
-              </h2>
-              <p className="mt-4 text-gray-600 max-w-2xl text-lg">
-                Flexible pricing options for educators, institutions, and enterprises
-              </p>
-            </motion.div>
-            
-            <div className="grid md:grid-cols-3 gap-8 mb-16">
-              {plans.map((plan, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  whileHover={{ y: -5, boxShadow: "0 20px 40px -15px rgba(0, 0, 0, 0.1)" }}
-                  className={`rounded-2xl p-8 flex flex-col h-full shadow-lg ${
-                    plan.popular ? 'bg-gradient-to-b from-white to-purple-50 border-2 border-purple-400 relative' : 'bg-white border border-gray-100'
-                  }`}
-                >
-                  {plan.popular && (
-                    <div className="absolute top-0 right-6 transform -translate-y-1/2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-bold uppercase px-3 py-1 rounded-full shadow-md">
-                      Most Popular
-                    </div>
-                  )}
-                  
-                  <div className="mb-8">
-                    <h3 className="text-2xl font-bold mb-1">{plan.name}</h3>
-                    <p className="text-sm text-gray-500 mb-4">{plan.description}</p>
-                    <div className="flex items-baseline mb-2">
-                      <span className="text-4xl font-bold">{plan.price}</span>
-                      {plan.price !== 'Custom' && <span className="text-gray-500 ml-2">/month</span>}
-                    </div>
-                    {plan.name === 'Basic' && (
-                      <p className="text-xs text-gray-500">Free forever, no credit card required</p>
-                    )}
-                  </div>
-                  
-                  <div className="mb-8 flex-grow">
-                    <ul className="space-y-3">
-                      {plan.features.map((feature, i) => (
-                        <li key={i} className="flex items-start">
-                          <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
-                          <span className="text-sm text-gray-700">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  
-                  <motion.div
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                  >
-                    <Link
-                      to={plan.buttonLink}
-                      className={`w-full py-3 rounded-lg font-medium flex items-center justify-center transition-colors ${
-                        plan.popular ? 
-                        'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg shadow-purple-600/20' : 
-                        plan.name === 'Enterprise' ? 
-                        'border border-gray-200 text-gray-700 hover:bg-gray-50' :
-                        'border border-purple-600 text-purple-600 hover:bg-purple-50'
-                      }`}
-                    >
-                      {plan.buttonText}
-                    </Link>
-                  </motion.div>
-                </motion.div>
-              ))}
-            </div>
-            
-            {/* FAQ related to pricing */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              viewport={{ once: true }}
-              className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 mt-16"
-            >
-              <h3 className="text-2xl font-bold mb-8 text-center">Frequently Asked Questions</h3>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                {faqs.map((faq, index) => (
-                  <div key={index} className="border-b border-gray-100 pb-6">
-                    <h4 className="text-lg font-semibold mb-2">{faq.question}</h4>
-                    <p className="text-gray-600">{faq.answer}</p>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="mt-10 text-center">
-                <p className="text-gray-600 mb-4">Still have questions?</p>
-                <Link to="/contact" className="text-purple-600 hover:text-purple-700 font-medium">
-                  Contact our sales team →
-                </Link>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Testimonials Section */}
-        <section id="testimonials" className="w-full py-16 md:py-24 bg-gradient-to-b from-white to-purple-50/30 relative overflow-hidden">
-          {/* Background decorations */}
-          <div className="absolute inset-0 -z-10 overflow-hidden">
-            <div className="absolute top-1/4 left-0 w-72 h-72 bg-purple-200/30 rounded-full mix-blend-multiply filter blur-xl"></div>
-            <div className="absolute bottom-0 right-0 w-72 h-72 bg-blue-200/20 rounded-full mix-blend-multiply filter blur-xl"></div>
-          </div>
-          
+        {/* Transform Your Teaching Experience Section */}
+        <section className="py-16 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col items-center justify-center text-center mb-16">
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                viewport={{ once: true }}
-                className="flex flex-col items-center"
-              >
-                <div className="inline-flex items-center rounded-full border border-purple-200 bg-purple-50 px-3 py-1 text-sm font-medium text-purple-800 mb-4">
-                  <Sparkles className="mr-1 h-3.5 w-3.5" />
-                  <span>Testimonials</span>
-                </div>
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-700 to-indigo-600 bg-clip-text text-transparent">
-                  What Our Users Say
-                </h2>
-                <p className="mt-4 text-gray-600 max-w-2xl text-lg">
-                  Don't take our word for it — hear from educators who have transformed their assessment process with MCQGen.
-                </p>
-              </motion.div>
+            <div className="mb-16 text-center">
+              <div className="inline-flex items-center justify-center rounded-full bg-yellow-100 p-1 px-3 mb-4">
+                <span className="text-sm font-medium text-yellow-800">FOR EDUCATORS</span>
+              </div>
+              <h2 className="text-3xl font-bold mb-4">Transform Your <span className="text-purple-600">Assessment Process</span></h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                Our AI-powered platform eliminates manual test creation and grading, saving educators hours of work every week.
+              </p>
             </div>
-
-            {/* Testimonial Cards */}
-            <div className="grid md:grid-cols-3 gap-8 mb-16">
-              {testimonials.map((testimonial, index) => (
+            
+            <div className="grid md:grid-cols-3 gap-8">
+              {aiFeatures.slice(0, 6).map((feature, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  whileHover={{ y: -5, boxShadow: "0 10px 40px -15px rgba(0, 0, 0, 0.1)" }}
-                  className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 relative"
+                  className="flex items-start gap-4"
                 >
-                  {/* Quote icon */}
-                  <div className="absolute -top-5 -left-3">
-                    <div className="text-purple-200 text-6xl">"</div>
+                  <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 flex-shrink-0">
+                    <feature.icon className="h-5 w-5" />
                   </div>
-                  
-                  {/* Stars */}
-                  <div className="flex mb-4">
+                  <div>
+                    <h3 className="font-bold mb-1">{feature.title}</h3>
+                    <p className="text-sm text-gray-600">{feature.description}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Stats Section */}
+        <section className="py-12 bg-gradient-to-r from-white to-purple-50/30">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {stats.map((stat, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="text-center"
+                >
+                  <div className="text-3xl font-bold text-purple-600 mb-1">{stat.value}</div>
+                  <div className="text-sm text-gray-500">{stat.label}</div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Trusted By Section */}
+        <section className="py-16 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold">Trusted by <span className="text-purple-600">Educational Institutions</span></h2>
+              <p className="text-gray-600 mt-2">
+                Join hundreds of schools and universities already using our platform to transform assessment
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-8 mb-8">
+              <div className="text-center">
+                <div className="font-bold">TRUSTED BY</div>
+                <div className="text-lg font-bold text-purple-600">500+ Schools</div>
+              </div>
+              <div className="text-center">
+                <div className="font-bold">AVERAGE RATING</div>
+                <div className="text-lg font-bold text-purple-600">4.9 /5.0</div>
+              </div>
+              <div className="text-center">
+                <div className="font-bold">TESTS PROCESSED</div>
+                <div className="text-lg font-bold text-purple-600">1M+</div>
+              </div>
+            </div>
+            
+            {/* Testimonial Slider */}
+            <div className="bg-white rounded-xl p-6 border border-gray-200 shadow max-w-2xl mx-auto">
+              <div className="flex items-start">
+                <div className="mr-4">
+                  <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                    RJ
+                  </div>
+                </div>
+                <div>
+                  <div className="flex mb-2">
                     {[...Array(5)].map((_, i) => (
-                      <svg key={i} className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 24 24">
+                      <svg key={i} className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 24 24">
                         <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                       </svg>
                     ))}
                   </div>
-                  
-                  {/* Testimonial text */}
-                  <p className="text-gray-600 mb-6 relative z-10">
-                    "{testimonial.text}"
+                  <p className="text-gray-700 mb-2">
+                    "MCQGen has eliminated our paper-based testing workflow. I can create tests, print them, and then scan completed answer sheets directly with my phone. Grading that used to take hours now takes minutes."
                   </p>
-                  
-                  {/* User info */}
-                  <div className="flex items-center mt-auto">
-                    <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-purple-400 to-indigo-600 mr-4">
-                      <div className="w-full h-full flex items-center justify-center text-white font-bold">
-                        {testimonial.initials}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="font-bold text-gray-900">{testimonial.name}</div>
-                      <div className="text-sm text-gray-500">{testimonial.title}</div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+                  <p className="font-bold">Richard Jones</p>
+                  <p className="text-sm text-gray-600">Science Teacher, Kennedy Academy</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="py-16 bg-gradient-to-b from-white to-purple-50/30">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center justify-center rounded-full bg-purple-100 p-1 px-3 mb-4">
+                <span className="text-sm font-medium text-purple-800">SUPPORT</span>
+              </div>
+              <h2 className="text-3xl font-bold">Frequently Asked <span className="text-purple-600">Questions</span></h2>
+              <p className="text-gray-600 mt-2 max-w-2xl mx-auto">
+                Get instant answers to common questions about our MCQ generation and test scanning platform
+              </p>
             </div>
             
-            {/* Featured logos */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-              className="rounded-2xl bg-white p-8 shadow-lg border border-gray-100"
-            >
-              <p className="text-center text-gray-600 mb-8 font-medium">
-                Trusted by leading educational institutions and organizations
-              </p>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center justify-items-center opacity-60">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="h-8 w-24 bg-gray-200 rounded"></div>
+            <div className="max-w-3xl mx-auto">
+              <div className="space-y-4">
+                {[
+                  {
+                    question: "How does the MCQ generation work?",
+                    answer: "Our AI analyzes your topic or syllabus and generates curriculum-aligned multiple-choice questions with correct answers and plausible distractors."
+                  },
+                  {
+                    question: "What do I need to scan answer sheets?",
+                    answer: "Just a smartphone with a camera or a computer with a webcam. Our app can scan answer sheets in various lighting conditions."
+                  },
+                  {
+                    question: "Can I customize the answer sheet format?",
+                    answer: "Yes, you can create custom templates with your school logo, question count, and other parameters to match your assessment needs."
+                  },
+                  {
+                    question: "How accurate is the automated grading?",
+                    answer: "Our scanning technology achieves 98% accuracy in identifying marked answers, even with imperfect bubbling or lighting conditions."
+                  },
+                  {
+                    question: "Can I manage multiple classes?",
+                    answer: "Yes, you can create unlimited classes, add students, assign tests, and track performance across all your classes from one dashboard."
+                  },
+                  {
+                    question: "Is there a limit to how many tests I can scan?",
+                    answer: "Our basic plan includes 100 scans per month. Professional and institutional plans include unlimited scanning."
+                  }
+                ].map((faq, index) => (
+                  <div 
+                    key={index} 
+                    className="border border-gray-200 rounded-lg p-4 bg-white"
+                  >
+                    <div className="flex justify-between items-center">
+                      <h3 className="font-medium">{faq.question}</h3>
+                      <ChevronRight className="h-5 w-5 text-gray-400" />
+                    </div>
+                  </div>
                 ))}
               </div>
-            </motion.div>
-            
-            {/* CTA within testimonials */}
-            <div className="mt-20 text-center">
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                viewport={{ once: true }}
-              >
-                <p className="text-lg text-gray-600 mb-6">
-                  Join the community of educators revolutionizing assessment
-                </p>
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="inline-block"
-                >
-                  <Link
-                    to="/register"
-                    className="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-lg shadow-purple-600/20 transition-all duration-300"
-                  >
-                    Start Creating MCQs Today
-                  </Link>
-                </motion.div>
-              </motion.div>
             </div>
           </div>
         </section>
 
         {/* CTA Section */}
-        <section className="w-full py-16 md:py-24 bg-purple-600">
-          <div className="container px-4 md:px-6 text-center">
-            <div className="mx-auto max-w-3xl space-y-6">
-              <h2 className="text-3xl font-bold text-white sm:text-4xl">
-                Ready to Transform Your Assessments?
-              </h2>
-              <p className="text-xl text-purple-100">
-                Join thousands of educators using MCQGen to create better assessments and track student progress.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-                <Link to="/register" className="h-12 px-8 bg-white text-purple-600 hover:bg-purple-50 text-base flex items-center justify-center rounded-md font-medium">
-                  Get Started Free
-                </Link>
-                <Link to="/demo" className="h-12 px-8 border border-white text-white hover:bg-purple-700 text-base flex items-center justify-center rounded-md font-medium">
-                  Schedule a Demo
-                </Link>
-              </div>
+        <section className="py-12 bg-purple-600">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div className="inline-flex items-center justify-center rounded-full bg-white/20 p-1 px-3 mb-4">
+              <span className="text-sm font-medium text-white">GET STARTED</span>
             </div>
+            <h2 className="text-3xl font-bold text-white mb-4">Modernize Your Assessment Process</h2>
+            <p className="text-purple-100 mb-8 max-w-xl mx-auto">
+              Join hundreds of educational institutions already saving thousands of hours with our MCQ creation and answer sheet scanning platform
+            </p>
+            <Link
+              to="/register"
+              className="inline-block h-12 px-8 bg-white text-purple-600 hover:bg-purple-50 font-medium rounded-lg flex items-center mx-auto justify-center shadow-lg transition-all duration-300"
+            >
+              Sign Up For Free <ChevronRight className="ml-2 h-4 w-4" />
+            </Link>
           </div>
         </section>
       </main>
       
-      <footer className="w-full border-t py-12 bg-white">
-        <div className="container px-4 md:px-6">
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
+      <footer className="w-full border-t py-10 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
                 <div className="relative">
                   <Brain className="h-6 w-6 text-purple-600" />
                 </div>
-                <span className="text-xl font-bold text-purple-600">
+                <span className="text-lg font-bold text-purple-600">
                   MCQGen
                 </span>
               </div>
               <p className="text-sm text-gray-500">
-                AI-powered MCQ generation and student performance tracking platform.
+                AI-powered MCQ generation and answer sheet scanning platform for educational institutions.
               </p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-900 mb-4">Product</h3>
-              <ul className="space-y-3">
-                <li>
-                  <Link to="#features" className="text-sm text-gray-500 hover:text-purple-600 transition-colors">
-                    Features
-                  </Link>
-                </li>
-                <li>
-                  <Link to="#pricing" className="text-sm text-gray-500 hover:text-purple-600 transition-colors">
-                    Pricing
-                  </Link>
-                </li>
-                <li>
-                  <Link to="#testimonials" className="text-sm text-gray-500 hover:text-purple-600 transition-colors">
-                    Testimonials
-                  </Link>
-                </li>
+              <h3 className="font-bold mb-4">Features</h3>
+              <ul className="space-y-2 text-sm text-gray-500">
+                <li><Link to="#">MCQ Generation</Link></li>
+                <li><Link to="#">Answer Sheet Scanning</Link></li>
+                <li><Link to="#">Performance Analytics</Link></li>
               </ul>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-900 mb-4">Resources</h3>
-              <ul className="space-y-3">
-                <li>
-                  <Link to="#" className="text-sm text-gray-500 hover:text-purple-600 transition-colors">
-                    Documentation
-                  </Link>
-                </li>
-                <li>
-                  <Link to="#" className="text-sm text-gray-500 hover:text-purple-600 transition-colors">
-                    Help Center
-                  </Link>
-                </li>
-                <li>
-                  <Link to="#" className="text-sm text-gray-500 hover:text-purple-600 transition-colors">
-                    Guides
-                  </Link>
-                </li>
+              <h3 className="font-bold mb-4">Resources</h3>
+              <ul className="space-y-2 text-sm text-gray-500">
+                <li><Link to="#">Help Center</Link></li>
+                <li><Link to="#">Tutorial Videos</Link></li>
+                <li><Link to="#">Case Studies</Link></li>
               </ul>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-900 mb-4">Legal</h3>
-              <ul className="space-y-3">
-                <li>
-                  <Link to="#" className="text-sm text-gray-500 hover:text-purple-600 transition-colors">
-                    Terms
-                  </Link>
-                </li>
-                <li>
-                  <Link to="#" className="text-sm text-gray-500 hover:text-purple-600 transition-colors">
-                    Privacy
-                  </Link>
-                </li>
-                <li>
-                  <Link to="#" className="text-sm text-gray-500 hover:text-purple-600 transition-colors">
-                    Cookies
-                  </Link>
-                </li>
+              <h3 className="font-bold mb-4">Company</h3>
+              <ul className="space-y-2 text-sm text-gray-500">
+                <li><Link to="#">About</Link></li>
+                <li><Link to="#">Pricing</Link></li>
+                <li><Link to="#">Contact</Link></li>
               </ul>
             </div>
           </div>
-          <div className="mt-12 pt-8 border-t flex flex-col md:flex-row justify-between items-center">
+          <div className="border-t pt-8 flex justify-between items-center">
             <p className="text-sm text-gray-500">© 2023 MCQGen. All rights reserved.</p>
+            <div className="flex gap-4">
+              <Link to="#" className="text-gray-400 hover:text-purple-600">
+                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                </svg>
+              </Link>
+              <Link to="#" className="text-gray-400 hover:text-purple-600">
+                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723 10.054 10.054 0 01-3.127 1.184 4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.16a4.822 4.822 0 00-.66 2.479c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
+                </svg>
+              </Link>
+            </div>
           </div>
         </div>
       </footer>

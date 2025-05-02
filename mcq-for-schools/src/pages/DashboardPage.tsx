@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FileQuestion, Users, BookOpen, Plus, ArrowRight, Bell, Calendar, ChevronRight, BarChart2 } from 'lucide-react';
+import { FileQuestion, Users, BookOpen, Plus, ArrowRight, Bell, Calendar, ChevronRight, BarChart2, Award, Filter, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Layout from '../components/layout/Layout';
 import Card, { CardContent, CardHeader, CardFooter } from '../components/ui/Card';
@@ -19,6 +19,10 @@ export default function DashboardPage() {
   const [recentMcqs, setRecentMcqs] = useState<Mcq[]>([]);
   const [userName, setUserName] = useState('');
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [topStudents, setTopStudents] = useState<any[]>([]);
+  const [classes, setClasses] = useState<any[]>([]);
+  const [selectedClass, setSelectedClass] = useState<string>('all');
+  const [loadingTopStudents, setLoadingTopStudents] = useState(false);
 
   useEffect(() => {
     // Update time every minute
@@ -99,6 +103,119 @@ export default function DashboardPage() {
 
     fetchStats();
   }, [user]);
+
+  useEffect(() => {
+    const fetchClasses = async () => {
+      if (!user) return;
+      
+      try {
+        const { data } = await supabase
+          .from('classes')
+          .select('id, name, section')
+          .eq('teacher_id', user.id)
+          .order('name', { ascending: true });
+          
+        if (data) {
+          setClasses(data);
+        }
+      } catch (err) {
+        console.error('Error fetching classes:', err);
+      }
+    };
+    
+    fetchClasses();
+  }, [user]);
+
+  useEffect(() => {
+    fetchTopStudents();
+  }, [user, selectedClass]);
+
+  const fetchTopStudents = async () => {
+    if (!user) return;
+    
+    try {
+      setLoadingTopStudents(true);
+      
+      let query = supabase
+        .from('student_results')
+        .select(`
+          id,
+          student_id,
+          percentage,
+          score,
+          total_questions,
+          created_at,
+          students(id, name, roll, class_id, classes(id, name, section))
+        `)
+        .eq('teacher_id', user.id)
+        .order('percentage', { ascending: false })
+        .limit(50);
+      
+      const { data: results } = await query;
+      
+      if (results && results.length > 0) {
+        // Group by student and calculate average score
+        const studentMap = new Map();
+        
+        results.forEach((result: any) => {
+          if (!result.students) return;
+          
+          const studentId = result.student_id;
+          if (!studentMap.has(studentId)) {
+            studentMap.set(studentId, {
+              id: studentId,
+              name: result.students.name,
+              roll: result.students.roll,
+              class_id: result.students.class_id,
+              class_name: result.students.classes?.name,
+              class_section: result.students.classes?.section,
+              totalScore: 0,
+              totalTests: 0,
+              recentResult: null
+            });
+          }
+          
+          const student = studentMap.get(studentId);
+          student.totalScore += result.percentage;
+          student.totalTests += 1;
+          
+          // Keep most recent test
+          if (!student.recentResult || new Date(result.created_at) > new Date(student.recentResult.created_at)) {
+            student.recentResult = {
+              score: result.score,
+              total: result.total_questions,
+              percentage: result.percentage,
+              created_at: result.created_at
+            };
+          }
+        });
+        
+        // Calculate average scores and sort
+        const processedStudents = Array.from(studentMap.values())
+          .map((student: any) => ({
+            ...student,
+            averageScore: student.totalScore / student.totalTests
+          }))
+          .sort((a, b) => b.averageScore - a.averageScore);
+        
+        // Filter by selected class if not "all"
+        let filteredStudents = processedStudents;
+        if (selectedClass !== 'all') {
+          filteredStudents = processedStudents.filter(
+            student => student.class_id === selectedClass
+          );
+        }
+        
+        setTopStudents(filteredStudents.slice(0, 5));
+      } else {
+        setTopStudents([]);
+      }
+    } catch (error) {
+      console.error('Error fetching top students:', error);
+    } finally {
+      setLoadingTopStudents(false);
+    }
+  };
 
   // Get greeting based on time of day
   const getGreeting = () => {
@@ -495,6 +612,184 @@ export default function DashboardPage() {
                 </Card>
               </Link>
             </div>
+          </motion.div>
+
+          {/* Top Performing Students */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.6 }}
+            className="mb-8"
+          >
+            <Card className="border-green-200 overflow-hidden hover:shadow-md transition-all">
+              <CardHeader className="bg-gradient-to-r from-green-50 to-teal-50 border-b border-green-100">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Award className="h-5 w-5 text-green-600 mr-2" />
+                    <h2 className="text-lg font-medium text-gray-900">Top Performing Students</h2>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="relative">
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Filter size={16} className="mr-1 text-green-500" />
+                        <span className="mr-2">Filter by class:</span>
+                      </div>
+                    </div>
+                    <select
+                      value={selectedClass}
+                      onChange={(e) => setSelectedClass(e.target.value)}
+                      className="text-sm rounded-md border border-green-200 bg-white px-3 py-1 shadow-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                    >
+                      <option value="all">All Classes</option>
+                      {classes.map((cls) => (
+                        <option key={cls.id} value={cls.id}>
+                          {cls.name} - Section {cls.section}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </CardHeader>
+              <div className="overflow-x-auto">
+                {loadingTopStudents ? (
+                  <div className="flex justify-center items-center h-48">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-600"></div>
+                  </div>
+                ) : topStudents.length > 0 ? (
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-green-50">
+                      <tr>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-green-600 uppercase tracking-wider">
+                          Rank
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-green-600 uppercase tracking-wider">
+                          Student
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-green-600 uppercase tracking-wider">
+                          Class
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-green-600 uppercase tracking-wider">
+                          Average Score
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-green-600 uppercase tracking-wider">
+                          Recent Performance
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-green-600 uppercase tracking-wider">
+                          Action
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {topStudents.map((student, index) => (
+                        <motion.tr 
+                          key={student.id} 
+                          className="hover:bg-green-50 transition-colors"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.1 * index }}
+                        >
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-700 font-medium">
+                              {index + 1}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-sm font-medium text-gray-900">{student.name}</div>
+                            <div className="text-xs text-gray-500">Roll: {student.roll}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-500">
+                              <span className="inline-flex items-center">
+                                <BookOpen size={14} className="mr-1 text-green-500" />
+                                {student.class_name} - Section {student.class_section}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">{student.averageScore.toFixed(1)}%</div>
+                            <div className="w-20 bg-gray-200 rounded-full h-1.5 mt-1">
+                              <div 
+                                className="bg-green-500 h-1.5 rounded-full" 
+                                style={{ width: `${student.averageScore}%` }}
+                              ></div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {student.recentResult && (
+                              <div>
+                                <div className="flex items-center">
+                                  <div className={`h-2 w-2 rounded-full mr-1.5 ${
+                                    student.recentResult.percentage >= 80 ? 'bg-green-500' : 
+                                    student.recentResult.percentage >= 60 ? 'bg-yellow-500' : 
+                                    'bg-red-500'
+                                  }`}></div>
+                                  <span className="text-sm text-gray-700">
+                                    {student.recentResult.score}/{student.recentResult.total} ({student.recentResult.percentage}%)
+                                  </span>
+                                </div>
+                                <div className="text-xs text-gray-500 mt-1">
+                                  {new Date(student.recentResult.created_at).toLocaleDateString()}
+                                </div>
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                            <Link to={`/students/${student.id}/analytics`}>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                rightIcon={<ExternalLink size={14} />}
+                                className="text-green-600 hover:bg-green-50 hover:text-green-700 group"
+                              >
+                                View Analytics
+                              </Button>
+                            </Link>
+                          </td>
+                        </motion.tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="py-12 px-6 text-center bg-green-50">
+                    <div className="mx-auto w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mb-4">
+                      <Award size={24} />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No student results available</h3>
+                    <p className="text-gray-500 mb-6 max-w-md mx-auto">
+                      {selectedClass !== 'all' 
+                        ? 'No results found for students in this class.' 
+                        : 'Start giving MCQ tests to your students to view performance rankings.'}
+                    </p>
+                    <Link to="/mcqs/share">
+                      <Button 
+                        rightIcon={<ArrowRight size={16} />} 
+                        size="lg" 
+                        className="shadow-sm hover:shadow transition-shadow bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        Share MCQ with Students
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+              </div>
+              {topStudents.length > 0 && (
+                <CardFooter className="bg-gradient-to-r from-green-50 to-teal-50 border-t border-green-100 flex justify-between items-center">
+                  <div className="text-xs text-green-600">
+                    Showing top {topStudents.length} students
+                    {selectedClass !== 'all' && ' in selected class'}
+                  </div>
+                  <Link to="/students">
+                    <Button 
+                      size="sm" 
+                      rightIcon={<ChevronRight size={16} />}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      View All Students
+                    </Button>
+                  </Link>
+                </CardFooter>
+              )}
+            </Card>
           </motion.div>
         </>
       )}
