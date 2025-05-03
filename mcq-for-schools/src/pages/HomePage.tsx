@@ -7,6 +7,7 @@ export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   
   // Check for auth token in localStorage on component mount
   useEffect(() => {
@@ -139,6 +140,11 @@ export default function HomePage() {
     }
   ];
   
+  // FAQ section - toggle function
+  const toggleFaq = (index: number) => {
+    setOpenFaqIndex(openFaqIndex === index ? null : index);
+  };
+  
   return (
     <div className="flex min-h-screen flex-col bg-white">
       {/* Background pattern */}
@@ -189,9 +195,9 @@ export default function HomePage() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
             {[
-              { name: "Features", href: "#features" },
-              { name: "How It Works", href: "#how-it-works" },
-              { name: "Pricing", href: "#pricing" },
+              { name: "Features", href: "/features" },
+              { name: "How It Works", href: "/how-it-works" },
+              { name: "Pricing", href: "/pricing" },
               { name: "Testimonials", href: "#testimonials" }
             ].map((item, index) => (
               <motion.div
@@ -297,21 +303,21 @@ export default function HomePage() {
           >
             <nav className="flex flex-col space-y-4">
               <Link
-                to="#features"
+                to="/features"
                 className="text-base font-medium text-gray-700 hover:text-purple-600 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Features
               </Link>
               <Link
-                to="#how-it-works"
+                to="/how-it-works"
                 className="text-base font-medium text-gray-700 hover:text-purple-600 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 How It Works
               </Link>
               <Link
-                to="#pricing"
+                to="/pricing"
                 className="text-base font-medium text-gray-700 hover:text-purple-600 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -422,7 +428,7 @@ export default function HomePage() {
                   >
                     Computer Vision
                     <svg className="absolute -bottom-2 left-0 w-full" height="10" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M0 5C50 5 50 0 100 0S150 5 200 5s50-5 100-5 50 5 100 5 50-5 100-5 50 5 100 5" stroke="rgb(126, 34, 206)" strokeWidth="4" fill="none" strokeLinecap="round"></path>
+                      <path d="M0 5C50 5 50 0 100 0S150 5 200 5s50-5 100-5 50 5 100 5" stroke="rgb(126, 34, 206)" strokeWidth="4" fill="none" strokeLinecap="round"></path>
                     </svg>
                   </motion.span>
                 </h1>
@@ -475,7 +481,7 @@ export default function HomePage() {
                     transition={{ duration: 0.5, delay: 0.6 }}
                   >
                     <Link
-                      to="#how-it-works"
+                      to="/how-it-works"
                       className="h-14 px-8 border border-gray-200 hover:border-purple-300 hover:bg-purple-50 flex items-center justify-center rounded-xl font-medium transition-all duration-200"
                     >
                       Watch Demo <Play className="ml-2 h-4 w-4 fill-current" />
@@ -671,7 +677,7 @@ export default function HomePage() {
                 className="inline-block"
               >
                 <Link
-                  to="#demo"
+                  to="/how-it-works"
                   className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-6 py-3 rounded-full font-medium transition-colors"
                 >
                   See how it works <Play className="h-4 w-4 fill-current" />
@@ -796,6 +802,7 @@ export default function HomePage() {
             </div>
             
             <div className="max-w-3xl mx-auto">
+              {/* Interactive FAQ Accordion */}
               <div className="space-y-5">
                 {[
                   {
@@ -823,28 +830,77 @@ export default function HomePage() {
                     answer: "Our basic plan includes 200 scans per month. Professional and institutional plans include unlimited scanning and additional analytics features."
                   }
                 ].map((faq, index) => (
-                  <div 
+                  <motion.div 
                     key={index} 
-                    className="border border-gray-200 rounded-xl p-6 bg-white hover:shadow-md transition-shadow"
+                    className={`rounded-xl bg-white shadow-sm border border-gray-100 transition-all duration-300 ${openFaqIndex === index ? 'shadow-md ring-1 ring-purple-100' : 'hover:shadow-md'}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: index * 0.1 }}
+                    viewport={{ once: true }}
                   >
-                    <div className="flex justify-between items-center cursor-pointer mb-4">
-                      <h3 className="font-medium text-lg">{faq.question}</h3>
-                      <ChevronRight className="h-5 w-5 text-purple-400" />
-                    </div>
-                    <div className="text-gray-600 border-t border-gray-100 pt-4">
-                      {faq.answer}
-                    </div>
-                  </div>
+                    <button 
+                      className="w-full flex justify-between items-center p-6 text-left focus:outline-none focus:ring-2 focus:ring-purple-200 focus:ring-inset rounded-t-xl"
+                      onClick={() => toggleFaq(index)}
+                      aria-expanded={openFaqIndex === index}
+                      aria-controls={`faq-answer-${index}`}
+                    >
+                      <h3 className={`font-semibold text-lg transition-colors duration-200 ${openFaqIndex === index ? 'text-purple-700' : 'text-gray-800'}`}>
+                        {faq.question}
+                      </h3>
+                      <div className={`w-9 h-9 rounded-full flex items-center justify-center bg-purple-50 transition-all duration-300 ${openFaqIndex === index ? 'bg-purple-100' : ''}`}>
+                        <ChevronRight 
+                          className={`h-5 w-5 text-purple-600 transition-transform duration-300 ${openFaqIndex === index ? 'rotate-90' : ''}`} 
+                          strokeWidth={2.5}
+                        />
+                      </div>
+                    </button>
+                    
+                    {openFaqIndex === index && (
+                      <motion.div 
+                        id={`faq-answer-${index}`}
+                        className="px-6 pb-6 text-gray-600 border-t border-gray-100"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <div className="pt-4 leading-relaxed">{faq.answer}</div>
+                        
+                        {/* Optional FAQ footer with helpful links */}
+                        <div className="mt-4 pt-3 border-t border-gray-50 flex justify-between items-center">
+                          <div className="text-sm text-gray-500">Was this helpful?</div>
+                          <div className="flex space-x-2">
+                            <button className="text-xs bg-purple-50 hover:bg-purple-100 text-purple-700 px-2 py-1 rounded transition-colors">
+                              Yes
+                            </button>
+                            <button className="text-xs bg-gray-50 hover:bg-gray-100 text-gray-700 px-2 py-1 rounded transition-colors">
+                              No
+                            </button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </motion.div>
                 ))}
               </div>
               
-              <div className="mt-12 text-center">
-                <Link
-                  to="/faq"
-                  className="inline-flex items-center text-purple-600 font-medium hover:text-purple-700"
-                >
-                  View all FAQs <ChevronRight className="ml-1 h-4 w-4" />
-                </Link>
+              {/* FAQ Footer CTA */}
+              <div className="mt-16 text-center">
+                <p className="text-gray-600 mb-6">Still have questions? We're here to help.</p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link
+                    to="/how-it-works"
+                    className="inline-flex items-center justify-center text-white font-medium bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 px-6 py-3 rounded-lg shadow-md transition-all duration-300"
+                  >
+                    View all FAQs <ChevronRight className="ml-2 h-4 w-4" />
+                  </Link>
+                  <Link
+                    to="/contact"
+                    className="inline-flex items-center justify-center text-gray-700 font-medium border border-gray-200 hover:border-purple-200 hover:bg-purple-50 px-6 py-3 rounded-lg transition-all duration-300"
+                  >
+                    Contact Support
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
@@ -890,7 +946,7 @@ export default function HomePage() {
                   whileTap={{ scale: 0.98 }}
                 >
                   <Link
-                    to="/demo"
+                    to="/how-it-works"
                     className="h-12 px-8 border border-white/30 text-white hover:bg-white/10 flex items-center justify-center rounded-lg font-medium transition-all duration-200"
                   >
                     Schedule Demo <ChevronRight className="ml-2 h-4 w-4" />
@@ -943,10 +999,10 @@ export default function HomePage() {
             <div>
               <h3 className="font-bold text-gray-900 mb-4">Product</h3>
               <ul className="space-y-3 text-sm text-gray-600">
-                <li><Link to="#" className="hover:text-purple-600 transition-colors">MCQ Generation</Link></li>
-                <li><Link to="#" className="hover:text-purple-600 transition-colors">Answer Sheet Scanning</Link></li>
-                <li><Link to="#" className="hover:text-purple-600 transition-colors">Performance Analytics</Link></li>
-                <li><Link to="#" className="hover:text-purple-600 transition-colors">Student Management</Link></li>
+                <li><Link to="/features" className="hover:text-purple-600 transition-colors">Features</Link></li>
+                <li><Link to="/how-it-works" className="hover:text-purple-600 transition-colors">How It Works</Link></li>
+                <li><Link to="/pricing" className="hover:text-purple-600 transition-colors">Pricing</Link></li>
+                <li><Link to="#testimonials" className="hover:text-purple-600 transition-colors">Testimonials</Link></li>
               </ul>
             </div>
             
@@ -963,10 +1019,10 @@ export default function HomePage() {
             <div>
               <h3 className="font-bold text-gray-900 mb-4">Company</h3>
               <ul className="space-y-3 text-sm text-gray-600">
-                <li><Link to="#" className="hover:text-purple-600 transition-colors">About</Link></li>
-                <li><Link to="#" className="hover:text-purple-600 transition-colors">Pricing</Link></li>
-                <li><Link to="#" className="hover:text-purple-600 transition-colors">Careers</Link></li>
-                <li><Link to="#" className="hover:text-purple-600 transition-colors">Contact</Link></li>
+                <li><Link to="/about" className="hover:text-purple-600 transition-colors">About</Link></li>
+                <li><Link to="/pricing" className="hover:text-purple-600 transition-colors">Pricing</Link></li>
+                <li><Link to="/careers" className="hover:text-purple-600 transition-colors">Careers</Link></li>
+                <li><Link to="/contact" className="hover:text-purple-600 transition-colors">Contact</Link></li>
               </ul>
             </div>
             

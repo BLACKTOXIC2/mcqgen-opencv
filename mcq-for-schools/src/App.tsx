@@ -15,6 +15,9 @@ const McqEditPage = lazy(() => import('./pages/McqEditPage'));
 const TestCheckingPage = lazy(() => import('./pages/TestCheckingPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
+const FeaturesPage = lazy(() => import('./pages/FeaturesPage'));
+const HowItWorksPage = lazy(() => import('./pages/HowItWorksPage'));
+const PricingPage = lazy(() => import('./pages/PricingPage'));
 
 // Loading component
 const LoadingFallback = () => (
@@ -56,6 +59,9 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/features" element={<FeaturesPage />} />
+        <Route path="/how-it-works" element={<HowItWorksPage />} />
+        <Route path="/pricing" element={<PricingPage />} />
         
         <Route 
           path="/dashboard" 
