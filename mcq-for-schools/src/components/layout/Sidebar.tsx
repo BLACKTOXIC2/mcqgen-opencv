@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Menu, X, Home, Users, FileQuestion, LogOut, ChevronRight, ScanLine,
-  BookOpenCheck, Layers, Settings
+  BookOpenCheck, Layers, Settings, Brain
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -111,38 +111,36 @@ export default function Sidebar() {
 
       {/* Sidebar for large screens */}
       <div className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:border-r lg:border-gray-200 lg:bg-white lg:pt-5 lg:shadow-sm overflow-y-auto bg-gradient-to-b from-white to-purple-50 transition-all duration-300">
-        <div className="flex items-center justify-center h-14 px-4 mb-6">
-          <div className="flex items-center space-x-2 text-xl font-bold text-purple-700">
-            <Layers size={24} className="text-purple-600" />
-            <span className="bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">MCQGen</span>
+        <div className="flex items-center justify-center h-16 px-4 mb-6">
+          <div className="flex items-center">
+            {/* Logo container with purple background */}
+            <div className="relative bg-[#6E47D0] rounded-xl p-2 w-10 h-10 flex items-center justify-center shadow-md">
+              <Brain className="h-5 w-5 text-white" />
+            </div>
+            
+            {/* Text part of the logo */}
+            <div className="ml-2 flex flex-col">
+              <div className="flex items-center">
+                <span className="text-base font-extrabold tracking-tight text-[#2C2A3C] uppercase">
+                  MCQGEN
+                </span>
+                <span className="text-yellow-400 ml-1 flex">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                  </svg>
+                </span>
+              </div>
+              <span className="text-xs text-gray-600 font-medium -mt-1">
+                AI-Powered Quiz Platform
+              </span>
+            </div>
           </div>
         </div>
 
         <div className="flex flex-col flex-grow px-3">
-          {/* User section */}
-          <div className="mb-6 p-3 bg-purple-100 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md">
-            <div className="flex items-center space-x-3">
-              <div className="flex-shrink-0 w-9 h-9 bg-purple-600 text-white rounded-full flex items-center justify-center font-medium text-sm shadow-sm">
-                {userInitials}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  {userName}
-                </p>
-                <p className="text-xs text-gray-500 truncate">
-                  {userEmail}
-                </p>
-              </div>
-              <Link 
-                to="/profile" 
-                className="p-1.5 rounded-md hover:bg-purple-200 text-purple-700 transition-all duration-300 transform hover:scale-110"
-                aria-label="Edit profile"
-              >
-                <Settings size={16} />
-              </Link>
-            </div>
-          </div>
-
           {/* Navigation */}
           <div className="text-xs font-semibold text-purple-400 uppercase tracking-wider px-3 mb-2">
             MAIN NAVIGATION
@@ -177,7 +175,8 @@ export default function Sidebar() {
               );
             })}
           </nav>
-
+          
+          {/* Footer section */}
           <div className="mt-auto mb-4">
             <div className="px-3 py-2 text-xs text-purple-500 font-medium">
               Logged in as a teacher
@@ -201,10 +200,32 @@ export default function Sidebar() {
             className="fixed inset-y-0 left-0 flex flex-col w-64 max-w-xs bg-white shadow-xl transform transition-transform duration-300 ease-in-out"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between h-14 px-4 border-b bg-purple-100">
-              <div className="flex items-center space-x-2">
-                <Layers size={22} className="text-purple-600" />
-                <h1 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">MCQGen</h1>
+            <div className="flex items-center justify-between h-16 px-4 border-b bg-purple-50">
+              <div className="flex items-center">
+                {/* Logo container with purple background */}
+                <div className="relative bg-[#6E47D0] rounded-xl p-2 w-9 h-9 flex items-center justify-center shadow-md">
+                  <Brain className="h-4 w-4 text-white" />
+                </div>
+                
+                {/* Text part of the logo */}
+                <div className="ml-2 flex flex-col">
+                  <div className="flex items-center">
+                    <span className="text-sm font-extrabold tracking-tight text-[#2C2A3C] uppercase">
+                      MCQGEN
+                    </span>
+                    <span className="text-yellow-400 ml-1 flex">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                      </svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                      </svg>
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-gray-600 font-medium -mt-0.5">
+                    AI-Powered Quiz Platform
+                  </span>
+                </div>
               </div>
               <button 
                 onClick={toggleSidebar} 
@@ -214,25 +235,12 @@ export default function Sidebar() {
               </button>
             </div>
 
-            {/* User section - mobile */}
-            <div className="px-4 py-3 border-b border-gray-200 bg-purple-50">
-              <div className="flex items-center space-x-3">
-                <div className="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-medium text-sm shadow-sm">
-                  {userInitials}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
-                    {userName}
-                  </p>
-                  <p className="text-xs text-gray-500 truncate">
-                    {userEmail}
-                  </p>
-                </div>
-              </div>
-            </div>
-
             <div className="flex flex-col flex-grow overflow-y-auto bg-gradient-to-b from-white to-purple-50">
-              <nav className="flex-1 px-2 py-3 space-y-1">
+              {/* Navigation */}
+              <div className="text-xs font-semibold text-purple-400 uppercase tracking-wider px-5 mt-4 mb-2">
+                MAIN NAVIGATION
+              </div>
+              <nav className="flex-1 px-2 py-2 space-y-1">
                 {navItems.map((item) => {
                   const isItemActive = isActive(item.path);
                   return (
@@ -259,7 +267,11 @@ export default function Sidebar() {
                 })}
               </nav>
 
-              <div className="px-4 py-3 mt-auto border-t">
+              {/* Footer section */}
+              <div className="mt-auto px-4 py-4 border-t border-gray-100">
+                <div className="px-1 py-2 text-xs text-purple-500 font-medium">
+                  Logged in as a teacher
+                </div>
                 <button 
                   onClick={signOut}
                   className="flex items-center w-full px-3 py-2.5 rounded-md font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-300 group"
