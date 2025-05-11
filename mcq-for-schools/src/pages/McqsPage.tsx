@@ -260,10 +260,10 @@ export default function McqsPage() {
               margin-top: 20px;
               display: grid;
               grid-template-columns: repeat(2, 1fr);
-              grid-gap: 5px 15px;
+              grid-gap: 4px 15px;
             }
             .question { 
-              margin-bottom: 10px;
+              margin-bottom: 9px;
               font-size: 10pt;
             }
             .options { 
@@ -271,20 +271,20 @@ export default function McqsPage() {
               flex-wrap: nowrap;
             }
             .option {
-              margin-right: 10px; 
+              margin-right: 9px; 
               display: flex; 
               align-items: center;
               color: #E32636;
             }
             .circle {
               display: inline-block;
-              width: 20px;
-              height: 20px;
+              width: 19px;
+              height: 19px;
               border-radius: 50%;
               border: 1px solid #E32636;
             }
             .option-letter {
-              margin-right: 5px;
+              margin-right: 4px;
               font-weight: bold;
             }
             
